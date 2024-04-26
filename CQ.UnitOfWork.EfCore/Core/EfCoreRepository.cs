@@ -149,23 +149,7 @@ namespace CQ.UnitOfWork.EfCore
             int page = 1,
             int pageSize = 10)
         {
-            var itemsPaged = await this._dbSet
-                .NullableWhere(predicate)
-                .Paginate(page, pageSize)
-                .ToListAsync()
-                .ConfigureAwait(false);
-
-            var totalItems = await this._dbSet
-                .NullableCountAsync(predicate)
-                .ConfigureAwait(false);
-
-            double itemsPerPage = pageSize == 0 ? totalItems : pageSize;
-            var totalPages = Convert.ToInt64(Math.Ceiling(totalItems / itemsPerPage));
-
-            return new Pagination<TEntity>(
-                itemsPaged,
-                totalItems,
-                totalPages);
+            return await _dbSet.PaginateAsync(predicate, page, pageSize).ConfigureAwait(false);
         }
 
         public virtual Pagination<TEntity> GetPaged(
@@ -173,21 +157,7 @@ namespace CQ.UnitOfWork.EfCore
             int page = 1,
             int pageSize = 10)
         {
-            var itemsPaged = this._dbSet
-                .NullableWhere(predicate)
-                .Paginate(page, pageSize)
-                .ToList();
-
-            var totalItems = this._dbSet
-                .NullableCount(predicate);
-
-            double itemsPerPage = pageSize == 0 ? totalItems : pageSize;
-            var totalPages = Convert.ToInt64(Math.Ceiling(totalItems / itemsPerPage));
-
-            return new Pagination<TEntity>(
-                itemsPaged,
-                totalItems,
-                totalPages);
+           return _dbSet.Paginate(predicate, page, pageSize);
         }
         #endregion
 
