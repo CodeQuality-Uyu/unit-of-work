@@ -1,4 +1,5 @@
 using CQ.UnitOfWork.EfCore.Abstractions;
+using CQ.UnitOfWork.EfCore.Core;
 using CQ.Utility;
 using FluentAssertions;
 using Microsoft.Data.Sqlite;

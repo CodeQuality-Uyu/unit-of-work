@@ -1,34 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-		<PackageId>CQ.UnitOfWork.EfCore</PackageId>
-		<RepositoryType>git</RepositoryType>
-		<RepositoryUrl>https://github.com/daniel18acevedo/cq-unit-of-work</RepositoryUrl>
-		<TargetFramework>net6.0</TargetFramework>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Title>Unit of Work with EfCore</Title>
-		<Authors>Code Quality</Authors>
-		<Company>Code Quality</Company>
-		<Product>Unit Of Work with EfCore</Product>
-		<Description>
-			A package that implements CQ.UnitOfWork.EfCore.Abstractions. It exports a base efcore repository and a base efcore context.
-		</Description>
-		<PackageTags>unitOfWork, cq, codeQuality</PackageTags>
 	</PropertyGroup>
 
 
-  <ItemGroup>
-    <PackageReference Include="CQ.Exceptions" Version="2.2.17" />
-    <PackageReference Include="CQ.ServiceExtension" Version="1.0.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.11" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.11" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.11" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CQ.Exceptions" Version="3.0.0" />
 
-  <ItemGroup>
-    <ProjectReference Include="..\CQ.UnitOfWork\CQ.UnitOfWork.csproj" />
-  </ItemGroup>
+		<PackageReference Include="CQ.Extensions.ServiceCollection" Version="2.0.0" />
+		
+		<PackageReference Include="CQ.UnitOfWork.Abstractions" Version="3.0.0" />
+		<PackageReference Include="CQ.UnitOfWork.EfCore.Abstractions" Version="3.0.0" />
+
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.6" />
+	</ItemGroup>
 
 </Project>

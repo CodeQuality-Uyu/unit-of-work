@@ -1,4 +1,4 @@
-﻿using CQ.UnitOfWork.EfCore;
+﻿using CQ.UnitOfWork.EfCore.Core;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 

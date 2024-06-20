@@ -23,21 +23,24 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CQ.UnitOfWork", "CQ.UnitOfW
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{579769CD-5FF7-4E20-A85A-54EAD5DAC985}"
 	ProjectSection(SolutionItems) = preProject
-		.dockerignore = .dockerignore
 		.gitignore = .gitignore
 		.github\workflows\build.yml = .github\workflows\build.yml
-		docker-compose.yml = docker-compose.yml
-		Dockerfile = Dockerfile
+		Directory.Build.props = Directory.Build.props
 		.github\workflows\on-uow-efcore.yml = .github\workflows\on-uow-efcore.yml
 		.github\workflows\on-uow-mongo.yml = .github\workflows\on-uow-mongo.yml
 		.github\workflows\on-uow.yml = .github\workflows\on-uow.yml
-		pack.bat = pack.bat
 		.github\workflows\tag.yml = .github\workflows\tag.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{AFC8D895-429D-4496-BC79-9E5397FF7874}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQ.UnitOfWork.EfCore.Tests", "CQ.UnitOfWork.EfCore.Tests\CQ.UnitOfWork.EfCore.Tests.csproj", "{6EED3A71-4D9F-45A1-9F72-A220E7B376FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CQ.UnitOfWork.EfCore.Tests", "CQ.UnitOfWork.EfCore.Tests\CQ.UnitOfWork.EfCore.Tests.csproj", "{6EED3A71-4D9F-45A1-9F72-A220E7B376FD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CQ.UnitOfWork.Abstractions", "CQ.UnitOfWork.Abstractions\CQ.UnitOfWork.Abstractions.csproj", "{3933E9DA-8F09-46D1-95DD-51CB0D2F47BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQ.UnitOfWork.EfCore.Abstractions", "CQ.UnitOfWork.EfCore.Abstractions\CQ.UnitOfWork.EfCore.Abstractions.csproj", "{A8FCE9EF-1536-4BE7-8A09-40E9FF97D16D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQ.UnitOfWork.MongoDriver.Abstractions", "CQ.UnitOfWork.MongoDriver.Abstractions\CQ.UnitOfWork.MongoDriver.Abstractions.csproj", "{0A16E669-F3DF-47E5-94B7-D6FD0A218E50}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,6 +80,18 @@ Global
 		{6EED3A71-4D9F-45A1-9F72-A220E7B376FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6EED3A71-4D9F-45A1-9F72-A220E7B376FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6EED3A71-4D9F-45A1-9F72-A220E7B376FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3933E9DA-8F09-46D1-95DD-51CB0D2F47BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3933E9DA-8F09-46D1-95DD-51CB0D2F47BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3933E9DA-8F09-46D1-95DD-51CB0D2F47BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3933E9DA-8F09-46D1-95DD-51CB0D2F47BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8FCE9EF-1536-4BE7-8A09-40E9FF97D16D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8FCE9EF-1536-4BE7-8A09-40E9FF97D16D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8FCE9EF-1536-4BE7-8A09-40E9FF97D16D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8FCE9EF-1536-4BE7-8A09-40E9FF97D16D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A16E669-F3DF-47E5-94B7-D6FD0A218E50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A16E669-F3DF-47E5-94B7-D6FD0A218E50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A16E669-F3DF-47E5-94B7-D6FD0A218E50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A16E669-F3DF-47E5-94B7-D6FD0A218E50}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,6 +105,9 @@ Global
 		{18BF5A88-FE98-4AAA-808D-81FEF5F7A6B4} = {49E5EF16-20B9-4400-8827-DBC41363D71E}
 		{6FC42EA1-50B8-473C-A0E9-BB49C3E814DE} = {3A37B592-E953-4FAF-B921-63A102369E63}
 		{6EED3A71-4D9F-45A1-9F72-A220E7B376FD} = {AFC8D895-429D-4496-BC79-9E5397FF7874}
+		{3933E9DA-8F09-46D1-95DD-51CB0D2F47BC} = {3A37B592-E953-4FAF-B921-63A102369E63}
+		{A8FCE9EF-1536-4BE7-8A09-40E9FF97D16D} = {3A37B592-E953-4FAF-B921-63A102369E63}
+		{0A16E669-F3DF-47E5-94B7-D6FD0A218E50} = {3A37B592-E953-4FAF-B921-63A102369E63}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {14B7C1DA-270F-4DCC-8F85-0DFE44920C1F}

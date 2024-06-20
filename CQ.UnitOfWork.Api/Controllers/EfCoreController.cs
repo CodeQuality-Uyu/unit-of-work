@@ -1,4 +1,4 @@
-﻿using CQ.UnitOfWork.Abstractions;
+﻿using CQ.UnitOfWork.Abstractions.Repositories;
 using CQ.UnitOfWork.Api.EFCore.DataAccess;
 using Microsoft.AspNetCore.Mvc;
 

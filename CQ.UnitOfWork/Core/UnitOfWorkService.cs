@@ -1,106 +1,77 @@
 ﻿using CQ.UnitOfWork.Abstractions;
+using CQ.UnitOfWork.Abstractions.Repositories;
+using CQ.Utility;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CQ.UnitOfWork
+namespace CQ.UnitOfWork.Core;
+internal class UnitOfWorkService(IServiceProvider _services) : IUnitOfWork
 {
-    internal class UnitOfWorkService : IUnitOfWork
+    private readonly IServiceProvider _services;
+
+    private IDatabaseContext _unitContext;
+
+    public IRepository<TEntity> GetEntityRepository<TEntity>() where TEntity : class
     {
-        private readonly IServiceProvider _services;
+        var entityRepository = _services.GetRequiredService<IRepository<TEntity>>();
 
-        private IDatabaseContext _unitContext;
+        return entityRepository;
+    }
 
-        public UnitOfWorkService(IServiceProvider services)
+    public IRepository<TEntity> GetUnitRepository<TEntity, TContext>()
+        where TEntity : class
+        where TContext : IDatabaseContext
+    {
+
+        if (Guard.IsNull(_unitContext))
         {
-            this._services = services;
+            var context = _services.GetRequiredService<TContext>();
+
+            _unitContext = context;
         }
 
-        /// <summary>
-        /// Gets a proper repository to handle entity.
-        /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <returns></returns>
-        public IRepository<TEntity> GetEntityRepository<TEntity>() where TEntity : class
-        {
-            var entityRepository = this._services.GetRequiredService<IRepository<TEntity>>();
+        var repository = _services.GetRequiredService<IUnitRepository<TEntity>>();
 
-            return entityRepository;
+        repository.SetContext(_unitContext);
+
+        return repository;
+    }
+
+    public IRepository<TEntity> GetUnitRepository<TEntity>()
+        where TEntity : class
+    {
+        if (Guard.IsNull(_unitContext))
+        {
+            var context = _services.GetRequiredService<IDatabaseContext>();
+
+            _unitContext = context;
         }
 
-        /// <summary>
-        /// Usefull when have multiple context
-        /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <typeparam name="TContext"></typeparam>
-        /// <returns></returns>
-        public IRepository<TEntity> GetUnitRepository<TEntity, TContext>()
-            where TEntity : class
-            where TContext : IDatabaseContext
+        var repository = _services.GetRequiredService<IUnitRepository<TEntity>>();
+
+        repository.SetContext(_unitContext);
+
+        return repository;
+    }
+
+    public async Task CommitChangesAsync()
+    {
+        if (_unitContext == null)
         {
-
-            if (this._unitContext is null)
-            {
-                var context = this._services.GetRequiredService<TContext>();
-
-                this._unitContext = context;
-            }
-
-            var repository = this._services.GetRequiredService<IUnitRepository<TEntity>>();
-
-            repository.SetContext(this._unitContext);
-
-            return repository;
+            throw new InvalidOperationException($"Unit context not setted");
         }
 
-        /// <summary>
-        /// Usefull when have only one context and want repositoy to use same context
-        /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <returns></returns>
-        public IRepository<TEntity> GetUnitRepository<TEntity>()
-            where TEntity : class
+        //await _unitContext.SaveChangesAsync().ConfigureAwait(false);
+    }
+
+    public TRepository GetRepository<TRepository>() where TRepository : class
+    {
+        var repository = _services.GetService<TRepository>();
+
+        if (Guard.IsNull(repository))
         {
-            if (this._unitContext is null)
-            {
-                var context = this._services.GetRequiredService<IDatabaseContext>();
-
-                this._unitContext = context;
-            }
-
-            var repository = this._services.GetRequiredService<IUnitRepository<TEntity>>();
-
-            repository.SetContext(this._unitContext);
-
-            return repository;
+            throw new ArgumentException($"Repository {typeof(TRepository).Name} not loaded");
         }
 
-        /// <summary>
-        /// Commit several changes at once. Useful for unit repositories
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException"></exception>
-        public async Task CommitChangesAsync()
-        {
-            if (this._unitContext == null) { throw new InvalidOperationException($"Unit context not setted"); }
-
-            await this._unitContext.SaveChangesAsync().ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Gets specific repository. If not defined, ArgumentException is thrown
-        /// </summary>
-        /// <typeparam name="TRepository"></typeparam>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public TRepository GetRepository<TRepository>() where TRepository : class
-        {
-            var repository = this._services.GetService<TRepository>();
-
-            if (repository is null)
-            {
-                throw new ArgumentException($"Repository {typeof(TRepository).Name} not loaded");
-            }
-
-            return repository;
-        }
+        return repository;
     }
 }

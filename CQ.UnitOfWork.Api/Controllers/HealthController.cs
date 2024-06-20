@@ -26,12 +26,8 @@ namespace CQ.UnitOfWork.Api.Controllers
                 Alive = true,
                 Databases = this._dataBaseContexts.Select(d =>
                 {
-                    var databaseInfo = d.GetDatabaseInfo(); 
-                    
                     return new
                     {
-                        Name = databaseInfo.Name,
-                        Provider = databaseInfo.Provider,
                         Alive = d.Ping()
                     };
                 })

@@ -1,10 +1,10 @@
-﻿using MongoDB.Driver;
+﻿
 using System.Linq.Expressions;
 
-namespace CQ.UnitOfWork.MongoDriver.Extensions;
-public static class ProjectionExtension
+namespace CQ.UnitOfWork.EfCore.Abstractions.Extensions;
+public static class SelectExtension
 {
-    public static ProjectionDefinition<TEntity, TResult> ProjectTo<TEntity, TResult>(this ProjectionDefinitionBuilder<TEntity> projection)
+    public static IQueryable<TResult> SelectTo<TEntity, TResult>(this IQueryable<TEntity> source)
     {
         var elementType = typeof(TEntity);
 
@@ -20,16 +20,16 @@ public static class ProjectionExtension
         // create initializers
         var bindings = properties.Where(property =>
         {
+            bool exist = false;
             try
             {
                 elementType.GetProperty(property);
 
-                return true;
+                exist = true;
             }
-            catch (Exception)
-            {
-                return false;
-            }
+            catch (ArgumentNullException) { }
+
+            return exist;
         }
         ).Select(property =>
         {
@@ -39,7 +39,6 @@ public static class ProjectionExtension
             // original value "o.Field1"
             var callingProperty = Expression.Property(parameter, originalProperty);
 
-
             // property "Field1"
             var propertyToSet = resultType.GetProperty(property);
 
@@ -48,7 +47,7 @@ public static class ProjectionExtension
         }
         );
 
-        ProjectionDefinition<TEntity, TResult> elementsToReturn = null;
+        IQueryable<TResult> elementsToReturn = null;
 
         if (bindings.Any())
         {
@@ -59,7 +58,7 @@ public static class ProjectionExtension
             var lambda = Expression.Lambda<Func<TEntity, TResult>>(elementInit, parameter);
 
             // compile to Func<Data, Data>
-            elementsToReturn = projection.Expression<TResult>(lambda);
+            elementsToReturn = source.Select(lambda);
         }
 
         return elementsToReturn;

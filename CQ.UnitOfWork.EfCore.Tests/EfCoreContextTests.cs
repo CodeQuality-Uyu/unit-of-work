@@ -1,12 +1,8 @@
-﻿using FluentAssertions;
+﻿using CQ.UnitOfWork.EfCore.Core;
+using FluentAssertions;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.EfCore.Tests
 {
@@ -43,14 +39,6 @@ namespace CQ.UnitOfWork.EfCore.Tests
 
             name.Should().NotBeNull();
             name.Should().Be("Users");
-        }
-
-        [TestMethod]
-        public void GetDatabaseInfo_WhenContextSetted_ShouldReturnBasicInfo()
-        {
-            var databaseInfo = this._testContext.GetDatabaseInfo();
-
-            databaseInfo.Provider.Should().Contain("Sqlite");
         }
     }
 }

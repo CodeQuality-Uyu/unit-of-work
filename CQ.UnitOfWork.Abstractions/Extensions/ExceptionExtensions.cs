@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CQ.UnitOfWork.Extensions
+namespace CQ.UnitOfWork.Abstractions.Extensions
 {
     internal static class ExceptionExtensions
     {
@@ -14,7 +14,10 @@ namespace CQ.UnitOfWork.Extensions
             Type type = typeof(Exception);
             FieldInfo fieldInfo = type.GetField("_innerException", BindingFlags.Instance | BindingFlags.NonPublic);
 
-            if (fieldInfo == null) return;
+            if (fieldInfo == null)
+            {
+                return;
+            }
 
             fieldInfo.SetValue(exception, innerException);
         }

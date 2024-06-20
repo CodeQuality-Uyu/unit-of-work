@@ -1,4 +1,4 @@
-﻿using CQ.UnitOfWork.MongoDriver;
+﻿using CQ.UnitOfWork.MongoDriver.Core;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;

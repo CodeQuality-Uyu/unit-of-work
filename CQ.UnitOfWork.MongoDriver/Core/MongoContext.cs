@@ -1,110 +1,86 @@
 ﻿using CQ.UnitOfWork.Abstractions;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CQ.UnitOfWork.MongoDriver
+namespace CQ.UnitOfWork.MongoDriver.Core;
+public class MongoContext(IMongoDatabase _mongoDatabase) :
+    IDatabaseContext
 {
-    public class MongoContext : IDatabaseContext
+    private readonly List<Action> _actions = [];
+
+    private readonly List<Func<Task>> _actionsTask = [];
+
+    private readonly Dictionary<Type, string> collections = [];
+
+    public MongoContext AddCollection<TEntity>(string collectionName)
     {
-        private readonly IMongoDatabase _mongoDatabase;
+        collections.Add(typeof(TEntity), collectionName);
 
-        private readonly List<Action> _actions = new();
+        return this;
+    }
 
-        private readonly List<Func<Task>> _actionsTask = new();
-
-        private readonly IDictionary<Type, string> collections = new Dictionary<Type, string>();
-
-        public MongoContext(IMongoDatabase mongoDatabase)
+    public bool Ping(string? collection = null)
+    {
+        try
         {
-            _mongoDatabase = mongoDatabase;
-        }
+            var result = _mongoDatabase.RunCommand<BsonDocument>(new BsonDocument($"{collection ?? "ping"}", 1));
 
-        public MongoContext AddCollection<TEntity>(string collectionName)
+            return true;
+        }
+        catch (Exception)
         {
-            this.collections.Add(typeof(TEntity), collectionName);
-
-            return this;
+            return false;
         }
+    }
 
-        public bool Ping(string? collection = null)
+    public IMongoCollection<TEntity> GetEntityCollection<TEntity>()
+    {
+        var collectionName = GetCollectionName<TEntity>();
+
+        return _mongoDatabase.GetCollection<TEntity>(collectionName);
+    }
+
+    public bool HasCollectionRegistered<TEntity>()
+    {
+        return collections.ContainsKey(typeof(TEntity));
+    }
+
+    public string GetCollectionName<TEntity>()
+    {
+        collections.TryGetValue(typeof(TEntity), out string? collectionName);
+
+        return collectionName ?? $"{typeof(TEntity).Name}s";
+    }
+
+    public IMongoCollection<BsonDocument> GetGenericCollection<TEntity>()
+    {
+        var collectionName = GetCollectionName<TEntity>();
+
+        return _mongoDatabase.GetCollection<BsonDocument>(collectionName);
+    }
+
+    public void AddActionAsync(Func<Task> action)
+    {
+        _actionsTask.Add(action);
+    }
+
+    public void AddAction(Action action)
+    {
+        _actions.Add(action);
+    }
+
+    public Task SaveChangesAsync()
+    {
+        _actions.ForEach(action =>
         {
-            try
-            {
-                var result = this._mongoDatabase.RunCommand<BsonDocument>(new BsonDocument($"{collection ?? "ping"}", 1));
+            action();
+        });
 
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        public IMongoCollection<TEntity> GetEntityCollection<TEntity>()
+        Parallel.ForEach(_actionsTask, async action =>
         {
-            var collectionName = this.GetCollectionName<TEntity>();
+            await action().ConfigureAwait(false);
+        });
 
-            return this._mongoDatabase.GetCollection<TEntity>(collectionName);
-        }
-
-        public bool HasCollectionRegistered<TEntity>()
-        {
-            return this.collections.ContainsKey(typeof(TEntity));
-        }
-
-        public string GetCollectionName<TEntity>()
-        {
-            this.collections.TryGetValue(typeof(TEntity), out string? collectionName);
-
-            return collectionName ?? $"{typeof(TEntity).Name}s";
-        }
-
-        public IMongoCollection<BsonDocument> GetGenericCollection<TEntity>()
-        {
-            var collectionName = this.GetCollectionName<TEntity>();
-
-            return this._mongoDatabase.GetCollection<BsonDocument>(collectionName);
-        }
-
-        public void AddActionAsync(Func<Task> action)
-        {
-            this._actionsTask.Add(action);
-        }
-
-        public void AddAction(Action action)
-        {
-            this._actions.Add(action);
-        }
-
-        public Task SaveChangesAsync()
-        {
-            this._actions.ForEach(action =>
-            {
-                action();
-            });
-
-            Parallel.ForEach(this._actionsTask, async action =>
-            {
-                await action().ConfigureAwait(false);
-            });
-
-            return Task.CompletedTask;
-        }
-
-        public DatabaseInfo GetDatabaseInfo()
-        {
-            return new DatabaseInfo
-            {
-                Provider = "Mongo",
-                Name = this._mongoDatabase.DatabaseNamespace.DatabaseName
-            };
-        }
+        return Task.CompletedTask;
     }
 }

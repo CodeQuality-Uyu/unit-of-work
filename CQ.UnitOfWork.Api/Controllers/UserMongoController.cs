@@ -1,10 +1,8 @@
 using CQ.UnitOfWork.Abstractions;
+using CQ.UnitOfWork.Abstractions.Repositories;
 using CQ.UnitOfWork.Api.MongoDriver.DataAccess;
-using CQ.UnitOfWork.MongoDriver;
 using CQ.UnitOfWork.MongoDriver.Abstractions;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace CQ.UnitOfWork.Api.Controllers
 {
