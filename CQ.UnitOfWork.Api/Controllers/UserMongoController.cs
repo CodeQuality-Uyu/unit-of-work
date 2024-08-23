@@ -75,7 +75,7 @@ namespace CQ.UnitOfWork.Api.Controllers
         [HttpPut("{id}/generic")]
         public async Task UpdateGenericAsync(string id, UserMongo updates)
         {
-            await this._userGenericRepository.UpdateByIdAsync(id, new { updates.Name }).ConfigureAwait(false);
+            await this._userGenericRepository.UpdateAndSaveByIdAsync(id, new { updates.Name }).ConfigureAwait(false);
         }
     }
 }

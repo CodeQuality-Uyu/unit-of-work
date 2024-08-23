@@ -1,7 +1,6 @@
-﻿
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
-namespace CQ.UnitOfWork.EfCore.Abstractions.Extensions;
+namespace CQ.UnitOfWork.EfCore.Extensions;
 public static class SelectExtension
 {
     public static IQueryable<TResult> SelectTo<TEntity, TResult>(this IQueryable<TEntity> source)

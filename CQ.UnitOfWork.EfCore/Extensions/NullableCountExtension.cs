@@ -1,23 +1,25 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CQ.UnitOfWork.EfCore.Extensions
+namespace CQ.UnitOfWork.EfCore.Extensions;
+
+public static class NullableCountExtension
 {
-    public static class NullableCountExtension
+    public static async Task<int> NullableCountAsync<T>(
+        this IQueryable<T> query,
+        Expression<Func<T, bool>>? predicate)
     {
-        public static async Task<int> NullableCountAsync<T>(this IQueryable<T> elements, Expression<Func<T, bool>>? condition)
-        {
-            return condition == null ? await elements.CountAsync().ConfigureAwait(false) : await elements.CountAsync(condition).ConfigureAwait(false);
-        }
+        return predicate == null
+            ? await query.CountAsync().ConfigureAwait(false)
+            : await query.CountAsync(predicate).ConfigureAwait(false);
+    }
 
-        public static int NullableCount<T>(this IQueryable<T> elements, Expression<Func<T, bool>>? condition)
-        {
-            return condition == null ? elements.Count() : elements.Count(condition);
-        }
+    public static int NullableCount<T>(
+        this IQueryable<T> query,
+        Expression<Func<T, bool>>? predicate)
+    {
+        return predicate == null
+            ? query.Count()
+            : query.Count(predicate);
     }
 }

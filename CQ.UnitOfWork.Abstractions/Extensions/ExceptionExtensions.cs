@@ -1,25 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 
-namespace CQ.UnitOfWork.Abstractions.Extensions
+namespace CQ.UnitOfWork.Abstractions.Extensions;
+
+internal static class ExceptionExtensions
 {
-    internal static class ExceptionExtensions
+    public static void SetInnerException(this Exception exception, Exception innerException)
     {
-        public static void SetInnerException(this Exception exception, Exception innerException)
-        {
-            Type type = typeof(Exception);
-            FieldInfo fieldInfo = type.GetField("_innerException", BindingFlags.Instance | BindingFlags.NonPublic);
+        var type = typeof(Exception);
+        var fieldInfo = type.GetField("_innerException", BindingFlags.Instance | BindingFlags.NonPublic);
 
-            if (fieldInfo == null)
-            {
-                return;
-            }
-
-            fieldInfo.SetValue(exception, innerException);
-        }
+        fieldInfo?.SetValue(exception, innerException);
     }
 }

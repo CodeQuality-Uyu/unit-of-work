@@ -3,8 +3,13 @@
 namespace CQ.UnitOfWork.EfCore.Extensions;
 public static class NoTrackingExtension
 {
-    public static IQueryable<T> TrackElements<T>(this DbSet<T> elements, bool track) where T : class
+    public static IQueryable<T> TrackElements<T>(
+        this IQueryable<T> query,
+        bool track)
+        where T : class
     {
-        return track ? elements : elements.AsNoTracking();
+        return track
+            ? query
+            : query.AsNoTracking();
     }
 }

@@ -53,7 +53,7 @@ namespace CQ.UnitOfWork.Api.Controllers
             var user = await this._repository.GetByIdAsync(id).ConfigureAwait(false);
             user.Name = "new name";
 
-            await this._repository.UpdateAsync(user).ConfigureAwait(false);
+            await this._repository.UpdateAndSaveAsync(user).ConfigureAwait(false);
 
             return Ok(user);
         }
@@ -61,7 +61,7 @@ namespace CQ.UnitOfWork.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync([FromRoute] string id)
         {
-            await this._repository.DeleteAsync(user => user.Id == id).ConfigureAwait(false);
+            await this._repository.DeleteAndSaveAsync(user => user.Id == id).ConfigureAwait(false);
             return Ok();
         }
     }

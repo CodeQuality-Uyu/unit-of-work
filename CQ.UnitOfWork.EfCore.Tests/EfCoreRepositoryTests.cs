@@ -9,6 +9,7 @@ using System.Data.Common;
 namespace CQ.UnitOfWork.EfCore.Tests
 {
     [TestClass]
+    [TestCategory("")]
     public class EfCoreRepositoryTests
     {
         private readonly DbConnection _connection;
@@ -122,7 +123,7 @@ namespace CQ.UnitOfWork.EfCore.Tests
             await this._testContext.AddAsync(user).ConfigureAwait(false);
             await this._testContext.SaveChangesAsync().ConfigureAwait(false);
 
-            await this._efCoreRepository.UpdateByIdAsync(user.Id, new { Name = "updated" }).ConfigureAwait(false);
+            await this._efCoreRepository.UpdateAndSaveByIdAsync(user.Id, new { Name = "updated" }).ConfigureAwait(false);
             var userUpdated = await this._testContext.Set<TestUser>().FirstAsync(u => u.Id == user.Id).ConfigureAwait(false);
 
             userUpdated.Should().NotBeNull();

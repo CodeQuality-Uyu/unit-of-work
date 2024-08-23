@@ -4,7 +4,7 @@ using CQ.UnitOfWork.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CQ.UnitOfWork.Configuration;
-public static class ServiceCollectionExtensions
+public static class UnitOfWorkConfig
 {
     public static IServiceCollection AddUnitOfWork(
         this IServiceCollection services,

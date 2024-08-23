@@ -7,7 +7,7 @@ using CQ.UnitOfWork.Abstractions.Repositories;
 using CQ.UnitOfWork.EfCore.Core;
 
 namespace CQ.UnitOfWork.EfCore.Configuration;
-public static class ServiceCollectionExtension
+public static class UnitOfWorkEfCoreConfig
 {
     #region Add Context
     public static IServiceCollection AddContext<TContext>(

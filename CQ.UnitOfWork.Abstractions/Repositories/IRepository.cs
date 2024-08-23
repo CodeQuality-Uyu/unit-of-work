@@ -1,7 +1,8 @@
 ﻿using System.Linq.Expressions;
 
 namespace CQ.UnitOfWork.Abstractions.Repositories;
-public interface IRepository<TEntity> : IFetchRepository<TEntity>
+public interface IRepository<TEntity>
+    : IFetchRepository<TEntity>
     where TEntity : class
 {
     #region Create entity
@@ -16,43 +17,29 @@ public interface IRepository<TEntity> : IFetchRepository<TEntity>
     #endregion
 
     #region Delete entity
-    Task DeleteAsync(Expression<Func<TEntity, bool>> predicate);
+    Task DeleteAndSaveAsync(Expression<Func<TEntity, bool>> predicate);
 
-    void Delete(Expression<Func<TEntity, bool>> predicate);
-    #endregion
+    Task DeleteBulkAndSaveAsync(List<TEntity> entities);
 
-    #region Fetch entities
-    Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null);
+    Task DeleteAndSaveAsync(TEntity entity);
 
-    List<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate = null);
+    void DeleteAndSave(Expression<Func<TEntity, bool>> predicate);
 
-    Task<List<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, bool>>? predicate = null);
-
-    List<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null);
-
-    Task<Pagination<TEntity>> GetPagedAsync(
-        Expression<Func<TEntity, bool>>? predicate = null,
-        int page = 1,
-        int pageSize = 10);
-
-    Pagination<TEntity> GetPaged(
-        Expression<Func<TEntity, bool>>? predicate = null,
-        int page = 1,
-        int pageSize = 10);
+    void DeleteAndSave(TEntity entity);
     #endregion
 
     #region Update entity
-    Task UpdateAsync(TEntity entity);
+    Task UpdateAndSaveAsync(TEntity entity);
 
-    void Update(TEntity entity);
+    void UpdateAndSave(TEntity entity);
 
-    Task UpdateByIdAsync(string id, object updates);
+    Task UpdateAndSaveByIdAsync(string id, object updates);
 
-    void UpdateById(string id, object updates);
+    void UpdateAndSaveById(string id, object updates);
 
-    Task UpdateByPropAsync(string value, string prop, object updates);
+    Task UpdateAndSaveByPropAsync(string value, string prop, object updates);
 
-    void UpdateByProp(string value, string prop, object updates);
+    void UpdateAndSaveByProp(string value, string prop, object updates);
     #endregion
 
     #region Exist entity

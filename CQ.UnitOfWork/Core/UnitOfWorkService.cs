@@ -4,10 +4,9 @@ using CQ.Utility;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CQ.UnitOfWork.Core;
-internal class UnitOfWorkService(IServiceProvider _services) : IUnitOfWork
+internal class UnitOfWorkService(IServiceProvider _services)
+    : IUnitOfWork
 {
-    private readonly IServiceProvider _services;
-
     private IDatabaseContext _unitContext;
 
     public IRepository<TEntity> GetEntityRepository<TEntity>() where TEntity : class
