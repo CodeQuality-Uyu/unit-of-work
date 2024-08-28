@@ -33,15 +33,15 @@ jobs:
         run: |
           if "${{ github.base_ref }}" == "uow" then
             PACKAGE_NAME="CQ.UnitOfWork"
-          elseif "${{ github.base_ref }}" == "uow-abstractions" then
+          elif "${{ github.base_ref }}" == "uow-abstractions" then
             PACKAGE_NAME="CQ.UnitOfWork.Abstractions"
-          elseif "${{ github.base_ref }}" == "uow-efcore" then
+          elif "${{ github.base_ref }}" == "uow-efcore" then
             PACKAGE_NAME="CQ.UnitOfWork.EfCore"
-          elseif "${{ github.base_ref }}" == "uow-efcore-abstractions" then
+          elif "${{ github.base_ref }}" == "uow-efcore-abstractions" then
             PACKAGE_NAME="CQ.UnitOfWork.EfCore.Abstractions"
-          elseif "${{ github.base_ref }}" == "uow-mongo" then
+          elif "${{ github.base_ref }}" == "uow-mongo" then
             PACKAGE_NAME="CQ.UnitOfWork.MongoDriver"
-          elseif "${{ github.base_ref }}" == "uow-mongo-abstractions" then
+          elif "${{ github.base_ref }}" == "uow-mongo-abstractions" then
             PACKAGE_NAME="CQ.UnitOfWork.MongoDriver.Abstractions"
           else
             echo "Unknown branch. Exiting."
