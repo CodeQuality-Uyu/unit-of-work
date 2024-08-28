@@ -52,10 +52,10 @@ jobs:
           echo "package_name=$PACKAGE_NAME" >> $GITHUB_ENV
 
       - name: Install dependencies
-        run: dotnet restore ${{ package_name }}
+        run: dotnet restore $package_name
 
       - name: Run build
-        run: dotnet build ${{ package_name }} --configuration Release
+        run: dotnet build $package_name --configuration Release
 
   check-pr-title:
     name: Check PR Title
