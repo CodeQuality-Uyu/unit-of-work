@@ -16,25 +16,20 @@ env:
   DOTNET_VERSION: "8.0.x" # The .NET SDK version to use
 
 jobs:
-  get-pr-title:
+  get_version:
+    name: Get PR Title
     runs-on: ubuntu-latest
-    outputs:
-      pr_title: ${{ steps.extract_pr_title.outputs.pr_title }}
     steps:
       - name: Get the latest merged PR
-        id: get_pr
         run: |
           PR_URL=$(git log -1 --merges --pretty=format:"%b" | grep -Eo 'https://github.com/[^ ]+/pull/[0-9]+')
-          echo "PR_URL=$PR_URL" >> $GITHUB_ENV
+          echo "pr_url=$PR_URL" >> $GITHUB_ENV
 
-      - name: Extract PR title
-        id: extract_pr_title
+      - name: Extract Version
         run: |
-          PR_TITLE=$(curl -s -H "Accept: application/vnd.github.v3+json" "$PR_URL" | jq -r '.title')
-          echo "PR_TITLE=$PR_TITLE" >> $GITHUB_ENV
-          echo "::set-output name=pr_title::$PR_TITLE"
-        env:
-          PR_URL: ${{ env.PR_URL }}
+          PR_TITLE=$(curl -s -H "Accept: application/vnd.github.v3+json" "$pr_url" | jq -r '.title')
+          
+          echo "pr_title=$PR_TITLE" >> $GITHUB_ENV
 
   build_pack_publish:
     name: Pack and Publish
@@ -45,42 +40,42 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Set version
-      run: echo "VERSION=${{ needs.get-pr-title.outputs.pr_title }}" >> $GITHUB_ENV
+    - name: Determine Package Name
+        run: |
+          if [ "${{ github.ref_name }}" == "uow" ]; then
+            PACKAGE_NAME="CQ.UnitOfWork"
+          elif [ "${{ github.ref_name }}" == "uow-abstractions" ]; then
+            PACKAGE_NAME="CQ.UnitOfWork.Abstractions"
+          elif [ "${{ github.ref_name }}" == "uow-efcore" ]; then
+            PACKAGE_NAME="CQ.UnitOfWork.EfCore"
+          elif [ "${{ github.ref_name }}" == "uow-efcore-abstractions" ]; then
+            PACKAGE_NAME="CQ.UnitOfWork.EfCore.Abstractions"
+          elif [ "${{ github.ref_name }}" == "uow-mongo" ]; then
+            PACKAGE_NAME="CQ.UnitOfWork.MongoDriver"
+          elif [ "${{ github.ref_name }}" == "uow-mongo-abstractions" ]; then
+            PACKAGE_NAME="CQ.UnitOfWork.MongoDriver.Abstractions"
+          else
+            echo "Unknown branch. Exiting."
+            exit 1
+          fi
+          echo "Package Name: $PACKAGE_NAME"
+
+          echo "package_name=$PACKAGE_NAME" >> $GITHUB_ENV
     
+    - name: Install dependencies
+        run: dotnet restore $package_name
+
     - name: Build
-      run: dotnet build --configuration Release /p:Version=$VERSION
+      run: dotnet build $package_name --configuration Release /p:Version=$pr_title
     
     - name: Pack
-      run: dotnet pack --configuration Release /p:Version=$VERSION --no-build --output .
+      run: dotnet pack $package_name --configuration Release /p:Version=$pr_title --no-build --output .
     
     - name: Show files
       run: ls -la
     
-    - name: Determine Package Name
-      id: package_name
-      run: |
-        if "${GITHUB_REF##*/}" == "uow" then
-          PACKAGE_NAME="CQ.UnitOfWork"
-        elif "${GITHUB_REF##*/}" == "uow-efcore-abstractions" then
-          PACKAGE_NAME="CQ.UnitOfWork.EfCore.Abstractions"
-        elseif "${GITHUB_REF##*/}" == "uow-efcore" then
-          PACKAGE_NAME="CQ.UnitOfWork.EfCore"
-        elseif "${GITHUB_REF##*/}" == "uow-abstractions" then
-          PACKAGE_NAME="CQ.UnitOfWork.Abstractions"
-        elseif "${GITHUB_REF##*/}" == "uow-mongo" then
-          PACKAGE_NAME="CQ.UnitOfWork.MongoDriver"
-        elseif "${GITHUB_REF##*/}" == "uow-mongo-abstractions" then
-          PACKAGE_NAME="CQ.UnitOfWork.MongoDriver.Abstractions"
-        else
-          echo "Unknown branch. Exiting."
-          exit 1
-        fi
-        echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
-        echo "::set-output name=package_name::$PACKAGE_NAME"
-
-    - name: Publish
-      run: dotnet nuget push ${{ steps.package_name.outputs.package_name }}.$VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
-      env:
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+    # - name: Publish
+    #   run: dotnet nuget push $package_name.$pr_title.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
+    #   env:
+    #     NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 

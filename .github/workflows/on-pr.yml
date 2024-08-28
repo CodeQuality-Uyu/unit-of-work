@@ -29,7 +29,6 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Determine Package Name
-        id: package_name
         run: |
           if [ "${{ github.base_ref }}" == "uow" ]; then
             PACKAGE_NAME="CQ.UnitOfWork"
