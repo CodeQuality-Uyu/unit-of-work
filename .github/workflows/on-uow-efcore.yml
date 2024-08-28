@@ -1,8 +1,8 @@
-name: Publish EfCore
-on:
-  pull_request:
-    branches:
-    - main-uow-efcore
+# name: Publish EfCore
+# on:
+#   pull_request:
+#     branches:
+#     - main-uow-efcore
 jobs:
   extract_version:
     name: Extract version
