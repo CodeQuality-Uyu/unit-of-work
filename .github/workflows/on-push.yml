@@ -35,7 +35,7 @@ jobs:
     name: Pack and Publish
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: get-pr-title
+    needs: get-version
     steps:
     - name: Checkout
       uses: actions/checkout@v4
