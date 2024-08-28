@@ -20,16 +20,21 @@ jobs:
     name: Get PR Title
     runs-on: ubuntu-latest
     steps:
-      - name: Get the latest merged PR
-        run: |
-          PR_URL=$(git log -1 --merges --pretty=format:"%b" | grep -Eo 'https://github.com/[^ ]+/pull/[0-9]+')
-          echo "pr_url=$PR_URL" >> $GITHUB_ENV
-
       - name: Extract Version
         run: |
-          PR_TITLE=$(curl -s -H "Accept: application/vnd.github.v3+json" "$pr_url" | jq -r '.title')
+          REPO_OWNER=$(echo ${{ github.repository_owner }})
+          REPO_NAME=$(basename ${{ github.repository }})
           
-          echo "pr_title=$PR_TITLE" >> $GITHUB_ENV
+          # Get the last merged PR for the 'uow' branch
+          LAST_PR=$(curl -s -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/pulls?state=closed&base=uow&sort=updated&direction=desc&per_page=1" \
+            | jq -r 'map(select(.merged_at != null))[0]')
+          
+          # Extract the title of the last merged PR
+          LAST_PR_TITLE=$(echo "$LAST_PR" | jq -r '.title')
+          
+          echo "Last Merged PR Title: $LAST_PR_TITLE"
+          echo "pr_title=$LAST_PR_TITLE" >> $GITHUB_ENV
 
   build_pack_publish:
     name: Pack and Publish
