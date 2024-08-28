@@ -41,29 +41,29 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Determine Package Name
-        run: |
-          if [ "${{ github.ref_name }}" == "uow" ]; then
-            PACKAGE_NAME="CQ.UnitOfWork"
-          elif [ "${{ github.ref_name }}" == "uow-abstractions" ]; then
-            PACKAGE_NAME="CQ.UnitOfWork.Abstractions"
-          elif [ "${{ github.ref_name }}" == "uow-efcore" ]; then
-            PACKAGE_NAME="CQ.UnitOfWork.EfCore"
-          elif [ "${{ github.ref_name }}" == "uow-efcore-abstractions" ]; then
-            PACKAGE_NAME="CQ.UnitOfWork.EfCore.Abstractions"
-          elif [ "${{ github.ref_name }}" == "uow-mongo" ]; then
-            PACKAGE_NAME="CQ.UnitOfWork.MongoDriver"
-          elif [ "${{ github.ref_name }}" == "uow-mongo-abstractions" ]; then
-            PACKAGE_NAME="CQ.UnitOfWork.MongoDriver.Abstractions"
-          else
-            echo "Unknown branch. Exiting."
-            exit 1
-          fi
-          echo "Package Name: $PACKAGE_NAME"
+      run: |
+        if [ "${{ github.ref_name }}" == "uow" ]; then
+          PACKAGE_NAME="CQ.UnitOfWork"
+        elif [ "${{ github.ref_name }}" == "uow-abstractions" ]; then
+          PACKAGE_NAME="CQ.UnitOfWork.Abstractions"
+        elif [ "${{ github.ref_name }}" == "uow-efcore" ]; then
+          PACKAGE_NAME="CQ.UnitOfWork.EfCore"
+        elif [ "${{ github.ref_name }}" == "uow-efcore-abstractions" ]; then
+          PACKAGE_NAME="CQ.UnitOfWork.EfCore.Abstractions"
+        elif [ "${{ github.ref_name }}" == "uow-mongo" ]; then
+          PACKAGE_NAME="CQ.UnitOfWork.MongoDriver"
+        elif [ "${{ github.ref_name }}" == "uow-mongo-abstractions" ]; then
+          PACKAGE_NAME="CQ.UnitOfWork.MongoDriver.Abstractions"
+        else
+          echo "Unknown branch. Exiting."
+          exit 1
+        fi
+        echo "Package Name: $PACKAGE_NAME"
 
-          echo "package_name=$PACKAGE_NAME" >> $GITHUB_ENV
+        echo "package_name=$PACKAGE_NAME" >> $GITHUB_ENV
     
     - name: Install dependencies
-        run: dotnet restore $package_name
+      run: dotnet restore $package_name
 
     - name: Build
       run: dotnet build $package_name --configuration Release /p:Version=$pr_title
