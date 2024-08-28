@@ -28,11 +28,32 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Determine Package Name
+        id: package_name
+        run: |
+          if [ ${github.base_ref} == "uow" ]; then
+            PACKAGE_NAME="CQ.UnitOfWork"
+          elseif [ ${github.base_ref} == "uow-abstractions" ]; then
+            PACKAGE_NAME="CQ.UnitOfWork.Abstractions"
+          elseif [ ${github.base_ref} == "uow-efcore" ]; then
+            PACKAGE_NAME="CQ.UnitOfWork.EfCore"
+          elseif [ ${github.base_ref} == "uow-efcore-abstractions" ]; then
+            PACKAGE_NAME="CQ.UnitOfWork.EfCore.Abstractions"
+          elseif [ ${github.base_ref} == "uow-mongo" ]; then
+            PACKAGE_NAME="CQ.UnitOfWork.MongoDriver"
+          elseif [ ${github.base_ref} == "uow-mongo-abstractions" ]; then
+            PACKAGE_NAME="CQ.UnitOfWork.MongoDriver.Abstractions"
+          else
+            echo "Unknown branch. Exiting."
+            exit 1
+          fi
+          echo "package_name=$PACKAGE_NAME" >> $GITHUB_ENV
+
       - name: Install dependencies
-        run: dotnet restore
+        run: dotnet restore $package_name
 
       - name: Run build
-        run: dotnet build --configuration Release
+        run: dotnet build $package_name --configuration Release
 
   check-pr-title:
     name: Check PR Title
