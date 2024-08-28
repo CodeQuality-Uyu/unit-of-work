@@ -60,17 +60,17 @@ jobs:
     - name: Determine Package Name
       id: package_name
       run: |
-        if "${GITHUB_REF##*/}" == "uow"; then
+        if "${GITHUB_REF##*/}" == "uow" then
           PACKAGE_NAME="CQ.UnitOfWork"
-        elif "${GITHUB_REF##*/}" == "uow-efcore-abstractions"; then
+        elif "${GITHUB_REF##*/}" == "uow-efcore-abstractions" then
           PACKAGE_NAME="CQ.UnitOfWork.EfCore.Abstractions"
-        elseif "${GITHUB_REF##*/}" == "uow-efcore"; then
+        elseif "${GITHUB_REF##*/}" == "uow-efcore" then
           PACKAGE_NAME="CQ.UnitOfWork.EfCore"
-        elseif "${GITHUB_REF##*/}" == "uow-abstractions"; then
+        elseif "${GITHUB_REF##*/}" == "uow-abstractions" then
           PACKAGE_NAME="CQ.UnitOfWork.Abstractions"
-        elseif "${GITHUB_REF##*/}" == "uow-mongo"; then
+        elseif "${GITHUB_REF##*/}" == "uow-mongo" then
           PACKAGE_NAME="CQ.UnitOfWork.MongoDriver"
-        elseif "${GITHUB_REF##*/}" == "uow-mongo-abstractions"; then
+        elseif "${GITHUB_REF##*/}" == "uow-mongo-abstractions" then
           PACKAGE_NAME="CQ.UnitOfWork.MongoDriver.Abstractions"
         else
           echo "Unknown branch. Exiting."
