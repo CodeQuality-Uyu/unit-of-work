@@ -12,14 +12,35 @@ on:
         uow-mongo-abstractions,
       ]
 
-env:
-  package_name: ""
-
 jobs:
   get_version:
     name: Get PR Title
     runs-on: ubuntu-latest
     steps:
+    - name: Extract Version
+      run: |
+        REPO_NAME=$(basename ${{ github.repository }})
+        
+        # Get the last merged PR for the head branch
+        LAST_PR=$(curl -s -H "Accept: application/vnd.github.v3+json" \
+          "https://api.github.com/repos/$REPO_NAME/pulls?state=closed&base=${{github.ref_name}}&sort=updated&direction=desc&per_page=1" \
+          | jq -r 'map(select(.merged_at != null))[0]')
+        
+        # Extract the title of the last merged PR
+        LAST_PR_TITLE=$(echo "$LAST_PR" | jq -r '.title')
+        
+        echo "Last Merged PR Title: $LAST_PR_TITLE"
+        echo "pr_title=$LAST_PR_TITLE" >> $GITHUB_ENV
+        
+  build_pack_publish:
+    name: Pack and Publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: get_version
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
     - name: Determine Package Name
       run: |
         if [ "${{ github.ref_name }}" == "uow" ]; then
@@ -41,30 +62,6 @@ jobs:
         echo "Package Name: $PACKAGE_NAME"
 
         echo "package_name=$PACKAGE_NAME" >> $GITHUB_ENV
-
-    - name: Extract Version
-      run: |
-        REPO_NAME=$(basename ${{ github.repository }})
-        
-        # Get the last merged PR for the head branch
-        LAST_PR=$(curl -s -H "Accept: application/vnd.github.v3+json" \
-          "https://api.github.com/repos/$REPO_NAME/pulls?state=closed&base=${{env.package_name}}&sort=updated&direction=desc&per_page=1" \
-          | jq -r 'map(select(.merged_at != null))[0]')
-        
-        # Extract the title of the last merged PR
-        LAST_PR_TITLE=$(echo "$LAST_PR" | jq -r '.title')
-        
-        echo "Last Merged PR Title: $LAST_PR_TITLE"
-        echo "pr_title=$LAST_PR_TITLE" >> $GITHUB_ENV
-        
-  build_pack_publish:
-    name: Pack and Publish
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: get_version
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
     
     - name: Install dependencies
       run: dotnet restore $package_name
