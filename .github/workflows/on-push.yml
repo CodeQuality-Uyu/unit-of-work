@@ -42,20 +42,20 @@ jobs:
 
         echo "package_name=$PACKAGE_NAME" >> $GITHUB_ENV
 
-      - name: Extract Version
-        run: |
-          REPO_NAME=$(basename ${{ github.repository }})
-          
-          # Get the last merged PR for the head branch
-          LAST_PR=$(curl -s -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/$REPO_NAME/pulls?state=closed&base=${{ package_name }}&sort=updated&direction=desc&per_page=1" \
-            | jq -r 'map(select(.merged_at != null))[0]')
-          
-          # Extract the title of the last merged PR
-          LAST_PR_TITLE=$(echo "$LAST_PR" | jq -r '.title')
-          
-          echo "Last Merged PR Title: $LAST_PR_TITLE"
-          echo "pr_title=$LAST_PR_TITLE" >> $GITHUB_ENV
+    - name: Extract Version
+      run: |
+        REPO_NAME=$(basename ${{ github.repository }})
+        
+        # Get the last merged PR for the head branch
+        LAST_PR=$(curl -s -H "Accept: application/vnd.github.v3+json" \
+          "https://api.github.com/repos/$REPO_NAME/pulls?state=closed&base=${{ package_name }}&sort=updated&direction=desc&per_page=1" \
+          | jq -r 'map(select(.merged_at != null))[0]')
+        
+        # Extract the title of the last merged PR
+        LAST_PR_TITLE=$(echo "$LAST_PR" | jq -r '.title')
+        
+        echo "Last Merged PR Title: $LAST_PR_TITLE"
+        echo "pr_title=$LAST_PR_TITLE" >> $GITHUB_ENV
 
   build_pack_publish:
     name: Pack and Publish
