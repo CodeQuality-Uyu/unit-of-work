@@ -24,7 +24,7 @@ jobs:
         # Get the last merged PR for the head branch
         LAST_PR=$(curl -s -H "Accept: application/vnd.github.v3+json" \
           "https://api.github.com/repos/$REPO_NAME/pulls?state=closed&base=${{github.ref_name}}&sort=updated&direction=desc&per_page=1" \
-          | jq -r 'map(select(.merged_at != null))[0]')
+          | jq -r '.[0] | select(.merged_at != null)')
         
         # Extract the title of the last merged PR
         LAST_PR_TITLE=$(echo "$LAST_PR" | jq -r '.title')
