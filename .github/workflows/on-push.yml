@@ -52,15 +52,15 @@ jobs:
         run: |
           if [ "${{ needs.get_version.outputs.pr_source }}" == "uow" ]; then
             PACKAGE_NAME="CQ.UnitOfWork"
-          elif [ "${{ needs.get_version.outputs.pr_source }}" ]; then
+          elif [ "${{ needs.get_version.outputs.pr_source }}" == "uow-abstractions" ]; then
             PACKAGE_NAME="CQ.UnitOfWork.Abstractions"
-          elif [ "${{ needs.get_version.outputs.pr_source }}" ]; then
+          elif [ "${{ needs.get_version.outputs.pr_source }}" == "uow-efcore" ]; then
             PACKAGE_NAME="CQ.UnitOfWork.EfCore"
-          elif [ "${{ needs.get_version.outputs.pr_source }}" ]; then
+          elif [ "${{ needs.get_version.outputs.pr_source }}" == "uow-efcore-abstractions" ]; then
             PACKAGE_NAME="CQ.UnitOfWork.EfCore.Abstractions"
-          elif [ "${{ needs.get_version.outputs.pr_source }}" ]; then
+          elif [ "${{ needs.get_version.outputs.pr_source }}" == "uow-mongo" ]; then
             PACKAGE_NAME="CQ.UnitOfWork.MongoDriver"
-          elif [ "${{ needs.get_version.outputs.pr_source }}" ]; then
+          elif [ "${{ needs.get_version.outputs.pr_source }}" == "uow-mongo-abstractions" ]; then
             PACKAGE_NAME="CQ.UnitOfWork.MongoDriver.Abstractions"
           else
             echo "Unknown branch. Exiting."
@@ -82,10 +82,10 @@ jobs:
       - name: Show files
         run: ls -la
 
-      # - name: Publish
-      #   run: dotnet nuget push $package_name.${{ needs.get_version.outputs.pr_title }}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
-      #   env:
-      #     NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      - name: Publish
+        run: dotnet nuget push $package_name.${{ needs.get_version.outputs.pr_title }}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
 # name: New Package Version
 
