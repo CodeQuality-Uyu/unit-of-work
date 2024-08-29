@@ -62,17 +62,17 @@ public class MongoDriverRepository<TEntity>(MongoContext _mongoContext) :
     #endregion
 
     #region Fetch all
-    public virtual async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null)
+    public override async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null)
     {
         return await _collection.NullableFind(predicate).ToListAsync().ConfigureAwait(false);
     }
 
-    public virtual List<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate)
+    public override List<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate)
     {
         return _collection.NullableFind(predicate).ToList();
     }
 
-    public virtual async Task<List<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
+    public override async Task<List<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
     {
         var filter = Builders<TEntity>.Filter.NullableWhere(predicate);
 
@@ -87,7 +87,7 @@ public class MongoDriverRepository<TEntity>(MongoContext _mongoContext) :
         return cursor;
     }
 
-    public virtual List<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
+    public override List<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
     {
         var filter = Builders<TEntity>.Filter.NullableWhere(predicate);
 
@@ -103,7 +103,7 @@ public class MongoDriverRepository<TEntity>(MongoContext _mongoContext) :
     #endregion
 
     #region Fetch paginate
-    public virtual async Task<Pagination<TEntity>> GetPagedAsync(
+    public override async Task<Pagination<TEntity>> GetPagedAsync(
         Expression<Func<TEntity, bool>>? predicate,
         int page = 1,
         int pageSize = 10)
@@ -127,7 +127,7 @@ public class MongoDriverRepository<TEntity>(MongoContext _mongoContext) :
             totalPages);
     }
 
-    public virtual Pagination<TEntity> GetPaged(
+    public override Pagination<TEntity> GetPaged(
         Expression<Func<TEntity, bool>>? predicate,
         int page = 1,
         int pageSize = 10)
@@ -374,5 +374,59 @@ public class MongoDriverRepository<TEntity>(MongoContext _mongoContext) :
         return GetOrDefaultByProp(id, "_id");
     }
 
+    public Task DeleteAndSaveAsync(Expression<Func<TEntity, bool>> predicate)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeleteBulkAndSaveAsync(List<TEntity> entities)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeleteAndSaveAsync(TEntity entity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void DeleteAndSave(Expression<Func<TEntity, bool>> predicate)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void DeleteAndSave(TEntity entity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task UpdateAndSaveAsync(TEntity entity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void UpdateAndSave(TEntity entity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task UpdateAndSaveByIdAsync(string id, object updates)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void UpdateAndSaveById(string id, object updates)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task UpdateAndSaveByPropAsync(string value, string prop, object updates)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void UpdateAndSaveByProp(string value, string prop, object updates)
+    {
+        throw new NotImplementedException();
+    }
     #endregion
 }
