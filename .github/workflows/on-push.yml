@@ -11,6 +11,8 @@ on:
         uow-mongo,
         uow-mongo-abstractions,
       ]
+env:
+  pr_title: ""
 
 jobs:
   get_version:
