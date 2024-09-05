@@ -12,7 +12,7 @@
 	<ItemGroup>
 		<PackageReference Include="CQ.Exceptions" Version="3.0.0" />
 		<PackageReference Include="CQ.Extensions.ServiceCollection" Version="2.0.0" />
-		<PackageReference Include="CQ.UnitOfWork.Abstractions" Version="3.0.0" />
+		<PackageReference Include="CQ.UnitOfWork.Abstractions" Version="3.0.3" />
 		<PackageReference Include="CQ.UnitOfWork.MongoDriver.Abstractions" Version="3.0.0" />
 
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />

@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       [
-        main
+        'uow*'
       ]
 
 env:
@@ -25,17 +25,17 @@ jobs:
 
       - name: Determine Package Name
         run: |
-          if [ "${{ github.head_ref }}" == "uow" ]; then
+          if [ "${{ github.base_ref }}" == "uow" ]; then
             PACKAGE_NAME="CQ.UnitOfWork"
-          elif [ "${{ github.head_ref }}" == "uow-abstractions" ]; then
+          elif [ "${{ github.base_ref }}" == "uow-abstractions" ]; then
             PACKAGE_NAME="CQ.UnitOfWork.Abstractions"
-          elif [ "${{ github.head_ref }}" == "uow-efcore" ]; then
+          elif [ "${{ github.base_ref }}" == "uow-efcore" ]; then
             PACKAGE_NAME="CQ.UnitOfWork.EfCore"
-          elif [ "${{ github.head_ref }}" == "uow-efcore-abstractions" ]; then
+          elif [ "${{ github.base_ref }}" == "uow-efcore-abstractions" ]; then
             PACKAGE_NAME="CQ.UnitOfWork.EfCore.Abstractions"
-          elif [ "${{ github.head_ref }}" == "uow-mongo" ]; then
+          elif [ "${{ github.base_ref }}" == "uow-mongo" ]; then
             PACKAGE_NAME="CQ.UnitOfWork.MongoDriver"
-          elif [ "${{ github.head_ref }}" == "uow-mongo-abstractions" ]; then
+          elif [ "${{ github.base_ref }}" == "uow-mongo-abstractions" ]; then
             PACKAGE_NAME="CQ.UnitOfWork.MongoDriver.Abstractions"
           else
             echo "Unknown branch. Exiting."
