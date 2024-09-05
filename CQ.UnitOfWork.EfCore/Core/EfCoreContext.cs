@@ -1,8 +1,5 @@
 ﻿using CQ.UnitOfWork.Abstractions;
-using CQ.Utility;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using System.Data.Common;
 using System.Reflection;
 
 namespace CQ.UnitOfWork.EfCore.Core;
