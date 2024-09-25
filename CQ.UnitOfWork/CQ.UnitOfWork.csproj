@@ -8,7 +8,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CQ.Extensions.ServiceCollection" Version="2.0.0" />
+		<PackageReference Include="CQ.Extensions.ServiceCollection" Version="2.0.2" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
 
 		<PackageReference Include="CQ.UnitOfWork.Abstractions" Version="3.0.6" />
