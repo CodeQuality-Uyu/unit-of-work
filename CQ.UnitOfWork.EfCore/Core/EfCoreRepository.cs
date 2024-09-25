@@ -1,4 +1,5 @@
 ﻿using CQ.Exceptions;
+using CQ.UnitOfWork.Abstractions;
 using CQ.UnitOfWork.Abstractions.Repositories;
 using CQ.UnitOfWork.EfCore.Abstractions;
 using CQ.UnitOfWork.EfCore.Abstractions.Params;
@@ -10,7 +11,8 @@ using System.Linq.Expressions;
 namespace CQ.UnitOfWork.EfCore.Core;
 public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
     BaseRepository<TEntity>,
-    IEfCoreRepository<TEntity>
+    IEfCoreRepository<TEntity>,
+    IUnitRepository<TEntity>
    where TEntity : class
 {
     protected DbSet<TEntity> _entities = baseContext.GetEntitySet<TEntity>();
@@ -18,11 +20,29 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
     protected EfCoreContext _baseContext = baseContext;
 
     #region Create
-    public virtual async Task<TEntity> CreateAsync(TEntity entity)
+    public virtual async Task<TEntity> CreateAndSaveAsync(TEntity entity)
     {
-        await _entities.AddAsync(entity).ConfigureAwait(false);
+        await CreateAsync(entity).ConfigureAwait(false);
 
         await baseContext.SaveChangesAsync().ConfigureAwait(false);
+
+        return entity;
+    }
+
+    public virtual async Task<TEntity> CreateAsync(TEntity entity)
+    {
+        await _entities
+            .AddAsync(entity)
+            .ConfigureAwait(false);
+
+        return entity;
+    }
+
+    public virtual TEntity CreateAndSave(TEntity entity)
+    {
+        Create(entity);
+
+        baseContext.SaveChanges();
 
         return entity;
     }
@@ -31,12 +51,10 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
     {
         _entities.Add(entity);
 
-        baseContext.SaveChanges();
-
         return entity;
     }
 
-    public virtual async Task<List<TEntity>> CreateBulkAsync(List<TEntity> entities)
+    public virtual async Task<List<TEntity>> CreateBulkAndSaveAsync(List<TEntity> entities)
     {
         await _entities.AddRangeAsync(entities).ConfigureAwait(false);
 
@@ -45,7 +63,7 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
         return entities;
     }
 
-    public virtual List<TEntity> CreateBulk(List<TEntity> entities)
+    public virtual List<TEntity> CreateBulkAndSave(List<TEntity> entities)
     {
         _entities.AddRange(entities);
 
@@ -539,5 +557,11 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
         }
 
         throw exception;
+    }
+
+    public void SetContext(IDatabaseContext context)
+    {
+        _baseContext = (EfCoreContext)context;
+        _entities = _baseContext.GetEntitySet<TEntity>();
     }
 }

@@ -1,8 +1,5 @@
 ﻿using CQ.UnitOfWork.Abstractions;
-using CQ.Utility;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using System.Data.Common;
 using System.Reflection;
 
 namespace CQ.UnitOfWork.EfCore.Core;
@@ -48,5 +45,10 @@ public abstract class EfCoreContext(DbContextOptions options) :
     public virtual string GetTableName<TEntity>()
     {
         return typeof(TEntity).Name;
+    }
+
+    async Task IDatabaseContext.SaveChangesAsync()
+    {
+        await SaveChangesAsync().ConfigureAwait(false);
     }
 }
