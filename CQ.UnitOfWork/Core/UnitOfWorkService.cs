@@ -4,72 +4,40 @@ using CQ.Utility;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CQ.UnitOfWork.Core;
-internal class UnitOfWorkService(IServiceProvider _services)
+
+internal class UnitOfWorkService(
+    IServiceProvider _services,
+    IDatabaseContext _unitContext)
     : IUnitOfWork
 {
-    private IDatabaseContext _unitContext;
-
-    public IRepository<TEntity> GetEntityRepository<TEntity>() where TEntity : class
+    public IRepository<TEntity> GetEntityRepository<TEntity>()
+        where TEntity : class
     {
-        var entityRepository = _services.GetRequiredService<IRepository<TEntity>>();
+        var entityRepository = _services.GetRequiredService<IUnitRepository<TEntity>>();
+
+        entityRepository.SetContext(_unitContext);
 
         return entityRepository;
     }
 
-    public IRepository<TEntity> GetUnitRepository<TEntity, TContext>()
-        where TEntity : class
-        where TContext : IDatabaseContext
-    {
-
-        if (Guard.IsNull(_unitContext))
-        {
-            var context = _services.GetRequiredService<TContext>();
-
-            _unitContext = context;
-        }
-
-        var repository = _services.GetRequiredService<IUnitRepository<TEntity>>();
-
-        repository.SetContext(_unitContext);
-
-        return repository;
-    }
-
-    public IRepository<TEntity> GetUnitRepository<TEntity>()
-        where TEntity : class
-    {
-        if (Guard.IsNull(_unitContext))
-        {
-            var context = _services.GetRequiredService<IDatabaseContext>();
-
-            _unitContext = context;
-        }
-
-        var repository = _services.GetRequiredService<IUnitRepository<TEntity>>();
-
-        repository.SetContext(_unitContext);
-
-        return repository;
-    }
-
     public async Task CommitChangesAsync()
     {
-        if (_unitContext == null)
-        {
-            throw new InvalidOperationException($"Unit context not setted");
-        }
-
-        //await _unitContext.SaveChangesAsync().ConfigureAwait(false);
+        await _unitContext
+            .SaveChangesAsync()
+            .ConfigureAwait(false);
     }
 
-    public TRepository GetRepository<TRepository>() where TRepository : class
+    public TRepository GetRepository<TRepository, TEntity>()
+        where TRepository : class
+        where TEntity : class
     {
-        var repository = _services.GetService<TRepository>();
+        var unitRepository = _services.GetRequiredService<IUnitRepository<TEntity>>();
 
-        if (Guard.IsNull(repository))
-        {
-            throw new ArgumentException($"Repository {typeof(TRepository).Name} not loaded");
-        }
+        unitRepository.SetContext(_unitContext);
+
+        var repository = (TRepository)unitRepository;
+
+        Guard.ThrowIsNull(repository, "repository");
 
         return repository;
     }

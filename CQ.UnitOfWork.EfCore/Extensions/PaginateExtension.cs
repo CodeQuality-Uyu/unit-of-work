@@ -74,7 +74,9 @@ namespace CQ.UnitOfWork.EfCore.Extensions
             return new Pagination<T>(
                 entities,
                 totalItems,
-                totalPages);
+                totalPages,
+                page,
+                pageSize);
         }
     }
 }
