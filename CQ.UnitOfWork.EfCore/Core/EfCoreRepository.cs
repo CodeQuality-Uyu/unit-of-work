@@ -11,8 +11,7 @@ using System.Linq.Expressions;
 namespace CQ.UnitOfWork.EfCore.Core;
 public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
     BaseRepository<TEntity>,
-    IEfCoreRepository<TEntity>,
-    IUnitRepository<TEntity>
+    IEfCoreRepository<TEntity>
    where TEntity : class
 {
     protected DbSet<TEntity> _entities = baseContext.GetEntitySet<TEntity>();
@@ -557,11 +556,5 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
         }
 
         throw exception;
-    }
-
-    public void SetContext(IDatabaseContext context)
-    {
-        _baseContext = (EfCoreContext)context;
-        _entities = _baseContext.GetEntitySet<TEntity>();
     }
 }
