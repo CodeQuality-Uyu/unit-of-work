@@ -46,4 +46,9 @@ public abstract class EfCoreContext(DbContextOptions options) :
     {
         return typeof(TEntity).Name;
     }
+
+    async Task IDatabaseContext.SaveChangesAsync()
+    {
+        await SaveChangesAsync().ConfigureAwait(false);
+    }
 }

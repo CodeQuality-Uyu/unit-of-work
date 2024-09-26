@@ -59,9 +59,18 @@ public abstract class BaseRepository<TEntity>
         TException exception)
         where TException : Exception
     {
+        return await ExecuteAsync(() => GetAsync(predicate), exception).ConfigureAwait(false);
+    }
+
+    private static async Task<TResult> ExecuteAsync<TException, TResult>(
+        Func<Task<TResult>> actionAsync,
+        TException exception)
+        where TResult : class
+        where TException : Exception
+    {
         try
         {
-            return await GetAsync(predicate).ConfigureAwait(false);
+            return await actionAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -75,9 +84,18 @@ public abstract class BaseRepository<TEntity>
         TException exception)
         where TException : Exception
     {
+        return Execute(() => Get(predicate), exception);
+    }
+
+    private static TResult Execute<TException, TResult>(
+        Func<TResult> action,
+        TException exception)
+        where TResult : class
+        where TException : Exception
+    {
         try
         {
-            return Get(predicate);
+            return action();
         }
         catch (Exception ex)
         {
@@ -91,15 +109,7 @@ public abstract class BaseRepository<TEntity>
         string prop,
         TException exception) where TException : Exception
     {
-        try
-        {
-            return await GetByPropAsync(value, prop).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            exception.SetInnerException(ex);
-            throw exception;
-        }
+        return await ExecuteAsync(() => GetByPropAsync(value, prop), exception).ConfigureAwait(false);
     }
 
     public virtual TEntity GetByProp<TException>(
@@ -107,44 +117,20 @@ public abstract class BaseRepository<TEntity>
         string prop,
         TException exception) where TException : Exception
     {
-        try
-        {
-            return GetByProp(value, prop);
-        }
-        catch (Exception ex)
-        {
-            exception.SetInnerException(ex);
-            throw exception;
-        }
+        return Execute(() => GetByProp(value, prop), exception);
     }
 
     public virtual async Task<TEntity> GetByIdAsync<TException>(
         string id,
         TException exception) where TException : Exception
     {
-        try
-        {
-            return await GetByIdAsync(id).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            exception.SetInnerException(ex);
-            throw exception;
-        }
+        return await ExecuteAsync(() => GetByIdAsync(id), exception).ConfigureAwait(false);
     }
 
     public TEntity GetById<TException>(
         string id,
         TException exception) where TException : Exception
     {
-        try
-        {
-            return GetById(id);
-        }
-        catch (Exception ex)
-        {
-            exception.SetInnerException(ex);
-            throw exception;
-        }
+        return Execute(() => GetById(id), exception);
     }
 }

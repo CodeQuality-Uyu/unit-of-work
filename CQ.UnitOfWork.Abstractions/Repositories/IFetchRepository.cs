@@ -4,7 +4,7 @@ namespace CQ.UnitOfWork.Abstractions.Repositories;
 public interface IFetchRepository<TEntity>
     where TEntity : class
 {
-    #region Fetch entities
+    #region Fetch all
     Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null);
 
     List<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate = null);
@@ -26,7 +26,7 @@ public interface IFetchRepository<TEntity>
         int pageSize = 10);
     #endregion
 
-    #region Fetch entity
+    #region Fetch one
     Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate);
 
     Task<TEntity> GetAsync<TException>(
@@ -42,13 +42,13 @@ public interface IFetchRepository<TEntity>
         where TException : Exception;
     #endregion
 
-    #region Fetch entity or default
+    #region Fetch one or default
     Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
 
     TEntity? GetOrDefault(Expression<Func<TEntity, bool>> predicate);
     #endregion
 
-    #region Fetch entity by prop
+    #region Fetch one by prop
     Task<TEntity> GetByPropAsync(
         string value,
         string prop);
@@ -70,7 +70,7 @@ public interface IFetchRepository<TEntity>
         where TException : Exception;
     #endregion
 
-    #region Fetch entity or default by prop
+    #region Fetch one or default by prop
     Task<TEntity?> GetOrDefaultByPropAsync(
         string value,
         string prop);
@@ -80,7 +80,7 @@ public interface IFetchRepository<TEntity>
         string prop);
     #endregion
 
-    #region Fetch entity by id
+    #region Fetch one by id
     Task<TEntity> GetByIdAsync(string id);
 
     Task<TEntity> GetByIdAsync<TException>(
@@ -96,7 +96,7 @@ public interface IFetchRepository<TEntity>
         where TException : Exception;
     #endregion
 
-    #region Fetch entity or default by id
+    #region Fetch one or default by id
     Task<TEntity?> GetOrDefaultByIdAsync(string id);
 
     TEntity? GetOrDefaultById(string id);

@@ -5,18 +5,21 @@ public interface IRepository<TEntity>
     : IFetchRepository<TEntity>
     where TEntity : class
 {
-    #region Create entity
+    #region Create
+    Task<TEntity> CreateAndSaveAsync(TEntity entity);
+
+    TEntity CreateAndSave(TEntity entity);
+
+    Task<List<TEntity>> CreateBulkAndSaveAsync(List<TEntity> entities);
+
+    List<TEntity> CreateBulkAndSave(List<TEntity> entities);
+
     Task<TEntity> CreateAsync(TEntity entity);
 
     TEntity Create(TEntity entity);
-
-    Task<List<TEntity>> CreateBulkAsync(List<TEntity> entities);
-
-    List<TEntity> CreateBulk(List<TEntity> entities);
-
     #endregion
 
-    #region Delete entity
+    #region Delete
     Task DeleteAndSaveAsync(Expression<Func<TEntity, bool>> predicate);
 
     Task DeleteBulkAndSaveAsync(List<TEntity> entities);
@@ -28,7 +31,7 @@ public interface IRepository<TEntity>
     void DeleteAndSave(TEntity entity);
     #endregion
 
-    #region Update entity
+    #region Update
     Task UpdateAndSaveAsync(TEntity entity);
 
     void UpdateAndSave(TEntity entity);
@@ -42,7 +45,7 @@ public interface IRepository<TEntity>
     void UpdateAndSaveByProp(string value, string prop, object updates);
     #endregion
 
-    #region Exist entity
+    #region Exist
 
     Task<bool> ExistAsync(Expression<Func<TEntity, bool>> predicate);
 
