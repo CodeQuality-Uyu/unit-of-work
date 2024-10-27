@@ -24,7 +24,7 @@ public static class UnitOfWorkEfCoreConfig
         LifeTime lifeTime)
         where TDbContext : EfCoreContext
     {
-        services.AddService<IUnitOfWork, UnitOfWorkService<TDbContext>>(lifeTime);
+        services.AddService<IUnitOfWork, EfCoreUnitOfWorkService<TDbContext>>(lifeTime);
 
         return services;
     }
