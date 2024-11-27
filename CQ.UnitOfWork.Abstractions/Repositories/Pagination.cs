@@ -4,8 +4,8 @@ public record Pagination<TItem>(
     List<TItem> Items,
     long TotalCount,
     long TotalPages,
-    long Page = 0,
-    long PageSize = 0)
+    long Page,
+    long PageSize)
 {
     public long TotalItems { get; init; } = Items.Count;
 
