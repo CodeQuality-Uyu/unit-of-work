@@ -4,5 +4,5 @@ public class EfCoreRepositoryContext<TEntity, TContext>(TContext context)
     where TEntity : class
     where TContext : EfCoreContext
 {
-    protected readonly TContext _concreteContext = context;
+    protected TContext ConcreteContext { get; } = context;
 }

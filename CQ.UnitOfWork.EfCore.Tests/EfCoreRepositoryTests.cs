@@ -1,40 +1,25 @@
-using CQ.UnitOfWork.EfCore.Abstractions;
 using CQ.UnitOfWork.EfCore.Core;
 using CQ.Utility;
-using FluentAssertions;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using System.Data.Common;
 
 namespace CQ.UnitOfWork.EfCore.Tests
 {
     [TestClass]
     [TestCategory("")]
-    public class EfCoreRepositoryTests
+    public sealed class EfCoreRepositoryTests
     {
-        private readonly DbConnection _connection;
-        private readonly TestContext _testContext;
-        private readonly IEfCoreRepository<TestUser> _efCoreRepository;
+        private TestDbContext _context = DbContextFactory.BuildTestContext();
+        private EfCoreRepository<TestUser> _efCoreRepository;
 
         public EfCoreRepositoryTests()
         {
-            this._connection = new SqliteConnection("Filename=:memory:");
-            var contextOptions = new DbContextOptionsBuilder<TestContext>().UseSqlite(this._connection).Options;
-            this._testContext = new TestContext(contextOptions);
-            this._efCoreRepository = new EfCoreRepository<TestUser>(this._testContext);
-        }
-
-        [TestInitialize]
-        public void SetUp()
-        {
-            this._connection.Open();
-            this._testContext.Database.EnsureCreated();
+            _efCoreRepository = new(_context);
         }
 
         [TestCleanup]
         public void CleanUp()
         {
-            this._testContext.Database.EnsureDeleted();
+            _context.Database.EnsureDeleted();
         }
 
         [TestMethod]
@@ -46,7 +31,7 @@ namespace CQ.UnitOfWork.EfCore.Tests
                 Name = "some name"
             };
 
-            var result = await this._efCoreRepository.CreateAsync(newUser).ConfigureAwait(false);
+            var result = await _efCoreRepository.CreateAsync(newUser).ConfigureAwait(false);
 
             result.Should().NotBeNull();
             result.Id.Should().Be(newUser.Id);
@@ -67,20 +52,22 @@ namespace CQ.UnitOfWork.EfCore.Tests
                 Id = Db.NewId(),
                 Name = "some name"
             };
+            using var setContext = DbContextFactory.BuildTestContext();
+            await setContext.AddRangeAsync(newUser, newUser2).ConfigureAwait(false);
+            await setContext.SaveChangesAsync().ConfigureAwait(false);
 
-            await this._testContext.AddRangeAsync(newUser, newUser2).ConfigureAwait(false);
-            await this._testContext.SaveChangesAsync().ConfigureAwait(false);
-
-            var result = await this._efCoreRepository.GetPagedAsync(page: 1, pageSize: 1).ConfigureAwait(false);
+            var result = await _efCoreRepository.GetPagedAsync(page: 1, pageSize: 1).ConfigureAwait(false);
 
             result.Should().NotBeNull();
-            result.TotalItems.Should().Be(2);
+            result.TotalItems.Should().Be(1);
+            result.TotalCount.Should().Be(2);
             result.TotalPages.Should().Be(2);
-
+            result.HasNext.Should().BeTrue();
+            result.HasPrevious.Should().BeFalse();
+            result.Page.Should().Be(1);
+            result.PageSize.Should().Be(1);
             result.Items.Should().Contain(newUser);
-            result.Items.Should().Contain(newUser2);
         }
-
 
         [TestMethod]
         public async Task GetPagedAsync_WhenWithDecimalPageCount_ShouldReturnTotalPagesBiggest()
@@ -103,13 +90,22 @@ namespace CQ.UnitOfWork.EfCore.Tests
                 Name = "some name"
             };
 
-            await this._testContext.AddRangeAsync(newUser, newUser2, newUser3).ConfigureAwait(false);
-            await this._testContext.SaveChangesAsync().ConfigureAwait(false);
+            using var setContext = DbContextFactory.BuildTestContext();
+            await setContext.AddRangeAsync(newUser, newUser2, newUser3).ConfigureAwait(false);
+            await setContext.SaveChangesAsync().ConfigureAwait(false);
 
-            var result = await this._efCoreRepository.GetPagedAsync(page: 1, pageSize: 2).ConfigureAwait(false);
+            var result = await _efCoreRepository.GetPagedAsync(page: 1, pageSize: 2).ConfigureAwait(false);
 
             result.Should().NotBeNull();
+            result.TotalItems.Should().Be(2);
+            result.TotalCount.Should().Be(3);
             result.TotalPages.Should().Be(2);
+            result.HasNext.Should().BeTrue();
+            result.HasPrevious.Should().BeFalse();
+            result.Page.Should().Be(1);
+            result.PageSize.Should().Be(2);
+            result.Items.Should().Contain(newUser);
+            result.Items.Should().Contain(newUser2);
         }
 
         [TestMethod]
@@ -120,11 +116,14 @@ namespace CQ.UnitOfWork.EfCore.Tests
                 Id = Db.NewId(),
                 Name = "some name"
             };
-            await this._testContext.AddAsync(user).ConfigureAwait(false);
-            await this._testContext.SaveChangesAsync().ConfigureAwait(false);
+            using var setContext = DbContextFactory.BuildTestContext();
+            await setContext.AddAsync(user).ConfigureAwait(false);
+            await setContext.SaveChangesAsync().ConfigureAwait(false);
 
-            await this._efCoreRepository.UpdateAndSaveByIdAsync(user.Id, new { Name = "updated" }).ConfigureAwait(false);
-            var userUpdated = await this._testContext.Set<TestUser>().FirstAsync(u => u.Id == user.Id).ConfigureAwait(false);
+            await _efCoreRepository.UpdateAndSaveByIdAsync(user.Id, new { Name = "updated" }).ConfigureAwait(false);
+
+            using var otherContext = DbContextFactory.BuildTestContext();
+            var userUpdated = await otherContext.Users.FirstAsync(u => u.Id == user.Id).ConfigureAwait(false);
 
             userUpdated.Should().NotBeNull();
             userUpdated.Name.Should().Be("updated");
@@ -138,11 +137,11 @@ namespace CQ.UnitOfWork.EfCore.Tests
         public string Name { get; set; }
     }
 
-    internal sealed class TestContext : EfCoreContext
+    internal sealed class TestDbContext : EfCoreContext
     {
         public DbSet<TestUser> Users { get; set; }
 
-        public TestContext(DbContextOptions options) : base(options)
+        public TestDbContext(DbContextOptions options) : base(options)
         {
         }
     }

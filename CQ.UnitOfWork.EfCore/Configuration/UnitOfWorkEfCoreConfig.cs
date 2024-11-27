@@ -24,7 +24,7 @@ public static class UnitOfWorkEfCoreConfig
         LifeTime lifeTime)
         where TDbContext : EfCoreContext
     {
-        services.AddService<IUnitOfWork, UnitOfWorkService<TDbContext>>(lifeTime);
+        services.AddService<IUnitOfWork, EfCoreUnitOfWorkService<TDbContext>>(lifeTime);
 
         return services;
     }
@@ -48,11 +48,12 @@ public static class UnitOfWorkEfCoreConfig
         LifeTime contextLifeTime)
         where TContext : EfCoreContext
     {
-        var lifeTimeDb = contextLifeTime == LifeTime.Scoped
-            ? ServiceLifetime.Scoped
-            : contextLifeTime == LifeTime.Transient
-            ? ServiceLifetime.Transient
-            : ServiceLifetime.Singleton;
+        var lifeTimeDb = contextLifeTime switch
+        {
+            LifeTime.Transient => ServiceLifetime.Transient,
+            LifeTime.Scoped => ServiceLifetime.Scoped,
+            _ => ServiceLifetime.Singleton,
+        };
 
         services
             .AddDbContext<TContext>(optionsBuilder, lifeTimeDb)
