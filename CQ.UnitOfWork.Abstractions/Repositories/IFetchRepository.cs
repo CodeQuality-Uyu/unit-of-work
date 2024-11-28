@@ -49,56 +49,57 @@ public interface IFetchRepository<TEntity>
     #endregion
 
     #region Fetch one by prop
-    Task<TEntity> GetByPropAsync(
-        string value,
+    Task<TEntity> GetByPropAsync<TProp>(
+        TProp value,
         string prop);
 
-    Task<TEntity> GetByPropAsync<TException>(
-        string value,
+    Task<TEntity> GetByPropAsync<TException, TProp>(
+        TProp value,
         string prop,
         TException exception)
         where TException : Exception;
 
-    TEntity GetByProp(
-        string value,
+    TEntity GetByProp<TProp>(
+        TProp value,
         string prop);
 
-    TEntity GetByProp<TException>(
-        string value,
+    TEntity GetByProp<TException, TProp>(
+        TProp value,
         string prop,
         TException exception)
         where TException : Exception;
     #endregion
 
     #region Fetch one or default by prop
-    Task<TEntity?> GetOrDefaultByPropAsync(
-        string value,
+
+    Task<TEntity?> GetOrDefaultByPropAsync<TProp>(
+        TProp value,
         string prop);
 
-    TEntity? GetOrDefaultByProp(
-        string value,
+    TEntity? GetOrDefaultByProp<TProp>(
+        TProp value,
         string prop);
     #endregion
 
     #region Fetch one by id
-    Task<TEntity> GetByIdAsync(string id);
+    Task<TEntity> GetByIdAsync<TId>(TId id);
 
-    Task<TEntity> GetByIdAsync<TException>(
-        string id,
+    Task<TEntity> GetByIdAsync<TException, TId>(
+        TId id,
         TException exception)
         where TException : Exception;
 
-    TEntity GetById(string id);
+    TEntity GetById<TId>(TId id);
 
-    TEntity GetById<TException>(
-        string id,
+    TEntity GetById<TException, TId>(
+        TId id,
         TException exception)
         where TException : Exception;
     #endregion
 
     #region Fetch one or default by id
-    Task<TEntity?> GetOrDefaultByIdAsync(string id);
+    Task<TEntity?> GetOrDefaultByIdAsync<TId>(TId id);
 
-    TEntity? GetOrDefaultById(string id);
+    TEntity? GetOrDefaultById<TId>(TId id);
     #endregion
 }

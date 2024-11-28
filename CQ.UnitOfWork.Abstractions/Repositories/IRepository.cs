@@ -36,13 +36,13 @@ public interface IRepository<TEntity>
 
     void UpdateAndSave(TEntity entity);
 
-    Task UpdateAndSaveByIdAsync(string id, object updates);
+    Task UpdateAndSaveByIdAsync<TId>(TId id, object updates);
 
-    void UpdateAndSaveById(string id, object updates);
+    void UpdateAndSaveById<TId>(TId id, object updates);
 
-    Task UpdateAndSaveByPropAsync(string value, string prop, object updates);
+    Task UpdateAndSaveByPropAsync<TProp>(TProp value, string prop, object updates);
 
-    void UpdateAndSaveByProp(string value, string prop, object updates);
+    void UpdateAndSaveByProp<TProp>(TProp value, string prop, object updates);
     #endregion
 
     #region Exist
