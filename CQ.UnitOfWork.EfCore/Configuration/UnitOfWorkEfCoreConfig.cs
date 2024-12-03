@@ -9,6 +9,27 @@ using CQ.UnitOfWork.EfCore.Core;
 namespace CQ.UnitOfWork.EfCore.Configuration;
 public static class UnitOfWorkEfCoreConfig
 {
+    #region Add Unit Of Work
+    public static IServiceCollection AddUnitOfWork(
+        this IServiceCollection services,
+        LifeTime lifeTime)
+    {
+        services.AddUnitOfWork<EfCoreContext>(lifeTime);
+
+        return services;
+    }
+
+    public static IServiceCollection AddUnitOfWork<TDbContext>(
+        this IServiceCollection services,
+        LifeTime lifeTime)
+        where TDbContext : EfCoreContext
+    {
+        services.AddService<IUnitOfWork, EfCoreUnitOfWorkService<TDbContext>>(lifeTime);
+
+        return services;
+    }
+    #endregion
+
     #region Add Context
     public static IServiceCollection AddContext<TContext>(
         this IServiceCollection services,
@@ -27,11 +48,12 @@ public static class UnitOfWorkEfCoreConfig
         LifeTime contextLifeTime)
         where TContext : EfCoreContext
     {
-        var lifeTimeDb = contextLifeTime == LifeTime.Scoped
-            ? ServiceLifetime.Scoped
-            : contextLifeTime == LifeTime.Transient
-            ? ServiceLifetime.Transient
-            : ServiceLifetime.Singleton;
+        var lifeTimeDb = contextLifeTime switch
+        {
+            LifeTime.Transient => ServiceLifetime.Transient,
+            LifeTime.Scoped => ServiceLifetime.Scoped,
+            _ => ServiceLifetime.Singleton,
+        };
 
         services
             .AddDbContext<TContext>(optionsBuilder, lifeTimeDb)

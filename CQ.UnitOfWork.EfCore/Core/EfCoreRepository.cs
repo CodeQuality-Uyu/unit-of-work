@@ -8,48 +8,64 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace CQ.UnitOfWork.EfCore.Core;
-public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
+public class EfCoreRepository<TEntity>(EfCoreContext _baseContext) :
     BaseRepository<TEntity>,
     IEfCoreRepository<TEntity>
    where TEntity : class
 {
-    protected DbSet<TEntity> _entities = baseContext.GetEntitySet<TEntity>();
+    protected DbSet<TEntity> Entities { get; } = _baseContext.GetEntitySet<TEntity>();
 
-    protected EfCoreContext _baseContext = baseContext;
+    protected EfCoreContext BaseContext { get; } = _baseContext;
 
     #region Create
+    public virtual async Task<TEntity> CreateAndSaveAsync(TEntity entity)
+    {
+        await CreateAsync(entity).ConfigureAwait(false);
+
+        await BaseContext.SaveChangesAsync().ConfigureAwait(false);
+
+        return entity;
+    }
+
     public virtual async Task<TEntity> CreateAsync(TEntity entity)
     {
-        await _entities.AddAsync(entity).ConfigureAwait(false);
+        await Entities
+            .AddAsync(entity)
+            .ConfigureAwait(false);
 
-        await baseContext.SaveChangesAsync().ConfigureAwait(false);
+        return entity;
+    }
+
+    public virtual TEntity CreateAndSave(TEntity entity)
+    {
+        Create(entity);
+
+        BaseContext.SaveChanges();
 
         return entity;
     }
 
     public virtual TEntity Create(TEntity entity)
     {
-        _entities.Add(entity);
-
-        baseContext.SaveChanges();
+        Entities.Add(entity);
 
         return entity;
     }
 
-    public virtual async Task<List<TEntity>> CreateBulkAsync(List<TEntity> entities)
+    public virtual async Task<List<TEntity>> CreateBulkAndSaveAsync(List<TEntity> entities)
     {
-        await _entities.AddRangeAsync(entities).ConfigureAwait(false);
+        await Entities.AddRangeAsync(entities).ConfigureAwait(false);
 
-        await baseContext.SaveChangesAsync().ConfigureAwait(false);
+        await BaseContext.SaveChangesAsync().ConfigureAwait(false);
 
         return entities;
     }
 
-    public virtual List<TEntity> CreateBulk(List<TEntity> entities)
+    public virtual List<TEntity> CreateBulkAndSave(List<TEntity> entities)
     {
-        _entities.AddRange(entities);
+        Entities.AddRange(entities);
 
-        baseContext.SaveChanges();
+        BaseContext.SaveChanges();
 
         return entities;
     }
@@ -59,61 +75,61 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
     #region Delete
     public virtual async Task DeleteAndSaveAsync(Expression<Func<TEntity, bool>> predicate)
     {
-        var entitiesToRemove = _entities.Where(predicate);
+        var entitiesToRemove = Entities.Where(predicate);
 
-        _entities.RemoveRange(entitiesToRemove);
+        Entities.RemoveRange(entitiesToRemove);
 
-        await baseContext
+        await BaseContext
             .SaveChangesAsync()
             .ConfigureAwait(false);
     }
 
     public virtual async Task DeleteBulkAndSaveAsync(List<TEntity> entities)
     {
-        _entities.RemoveRange(entities);
+        Entities.RemoveRange(entities);
 
-        await baseContext
+        await BaseContext
             .SaveChangesAsync()
             .ConfigureAwait(false);
     }
 
     public virtual async Task DeleteAndSaveAsync(TEntity entity)
     {
-        _entities.Remove(entity);
+        Entities.Remove(entity);
 
-        await baseContext
+        await BaseContext
             .SaveChangesAsync()
             .ConfigureAwait(false);
     }
 
     public virtual void DeleteAndSave(Expression<Func<TEntity, bool>> predicate)
     {
-        var entitiesToRemove = _entities.Where(predicate);
+        var entitiesToRemove = Entities.Where(predicate);
 
-        _entities.RemoveRange(entitiesToRemove);
+        Entities.RemoveRange(entitiesToRemove);
 
-        baseContext.SaveChanges();
+        BaseContext.SaveChanges();
     }
 
     public virtual void DeleteBulkAndSave(List<TEntity> entities)
     {
-        _entities.RemoveRange();
+        Entities.RemoveRange();
 
-        baseContext.SaveChanges();
+        BaseContext.SaveChanges();
     }
 
     public virtual void DeleteAndSave(TEntity entity)
     {
-        _entities.Remove(entity);
+        Entities.Remove(entity);
 
-        baseContext.SaveChanges();
+        BaseContext.SaveChanges();
     }
     #endregion
 
     #region GetAll
     public override async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null)
     {
-        return await _entities
+        return await Entities
             .NullableWhere(predicate)
             .ToListAsync()
             .ConfigureAwait(false);
@@ -121,7 +137,7 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
 
     public override List<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate = null)
     {
-        return _entities
+        return Entities
             .NullableWhere(predicate)
             .ToList();
     }
@@ -131,7 +147,7 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
         Expression<Func<TEntity, bool>>? predicate = null)
         where TResult : class
     {
-        return await _entities
+        return await Entities
             .NullableWhere(predicate)
             .Select(selector)
             .ToListAsync()
@@ -143,7 +159,7 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
         Expression<Func<TEntity, bool>>? predicate = null)
         where TResult : class
     {
-        return _entities
+        return Entities
             .NullableWhere(predicate)
             .Select(selector)
             .ToList();
@@ -152,7 +168,7 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
     public override async Task<List<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
         where TResult : class
     {
-        return await _entities
+        return await Entities
             .NullableWhere(predicate)
             .SelectTo<TEntity, TResult>()
             .ToListAsync()
@@ -162,7 +178,7 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
     public override List<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
         where TResult : class
     {
-        return _entities
+        return Entities
             .NullableWhere(predicate)
             .SelectTo<TEntity, TResult>()
             .ToList();
@@ -172,7 +188,7 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
         List<IncludeParam<TEntity>> includes,
         Expression<Func<TEntity, bool>>? predicate = null)
     {
-        var query = _entities.NullableWhere(predicate);
+        var query = Entities.NullableWhere(predicate);
 
         includes.ForEach(include =>
         {
@@ -206,8 +222,8 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
         int page = 1,
         int pageSize = 10)
     {
-        return await _entities
-            .PaginateAsync(
+        return await Entities
+            .ToPaginateAsync(
             predicate,
             page,
             pageSize)
@@ -219,7 +235,7 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
         int page = 1,
         int pageSize = 10)
     {
-        return _entities.Paginate(
+        return Entities.ToPaginate(
             predicate,
             page,
             pageSize);
@@ -231,10 +247,10 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
         int page = 1,
         int pageSize = 10) where TResult : class
     {
-        var elements = await _entities
+        var elements = await Entities
             .NullableWhere(predicate)
             .Select(selector)
-            .PaginateAsync(
+            .ToPaginateAsync(
             null,
             page,
             pageSize)
@@ -266,7 +282,7 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
         int page = 1,
         int pageSize = 10)
     {
-        var query = _entities.NullableWhere(predicate);
+        var query = Entities.NullableWhere(predicate);
 
         includes.ForEach(include =>
         {
@@ -274,7 +290,7 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
         });
 
         var elements = await query
-            .PaginateAsync(
+            .ToPaginateAsync(
             null,
             page,
             pageSize)
@@ -324,22 +340,22 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
     #endregion
 
     #region GetByProp
-    public override async Task<TEntity> GetByPropAsync(string value, string prop)
+    public override async Task<TEntity> GetByPropAsync<TProp>(TProp value, string prop)
     {
         var entity = await GetOrDefaultByPropAsync(value, prop).ConfigureAwait(false);
 
         if (Guard.IsNull(entity))
-            throw new SpecificResourceNotFoundException<TEntity>(prop, value);
+            throw new SpecificResourceNotFoundException<TEntity>(prop, value.ToString());
 
         return entity;
     }
 
-    public override TEntity GetByProp(string value, string prop)
+    public override TEntity GetByProp<TProp>(TProp value, string prop)
     {
         var entity = GetOrDefaultByProp(value, prop);
 
         if (Guard.IsNull(entity))
-            throw new SpecificResourceNotFoundException<TEntity>(prop, value);
+            throw new SpecificResourceNotFoundException<TEntity>(prop, value.ToString());
 
         return entity;
     }
@@ -348,26 +364,26 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
     #region GetOrDefault
     public override async Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
     {
-        return await _entities.Where(predicate).FirstOrDefaultAsync().ConfigureAwait(false);
+        return await Entities.Where(predicate).FirstOrDefaultAsync().ConfigureAwait(false);
     }
 
     public override TEntity? GetOrDefault(Expression<Func<TEntity, bool>> predicate)
     {
-        return _entities.Where(predicate).FirstOrDefault();
+        return Entities.Where(predicate).FirstOrDefault();
     }
     #endregion
 
     #region GetOrDefaultByProp
-    public override async Task<TEntity?> GetOrDefaultByPropAsync(string value, string prop)
+    public override async Task<TEntity?> GetOrDefaultByPropAsync<TProp>(TProp value, string prop)
     {
-        var entity = await GetOrDefaultAsync(e => EF.Property<string>(e, prop) == value).ConfigureAwait(false);
+        var entity = await GetOrDefaultAsync(e => EF.Property<TProp>(e, prop).Equals(value)).ConfigureAwait(false);
 
         return entity;
     }
 
-    public override TEntity? GetOrDefaultByProp(string value, string prop)
+    public override TEntity? GetOrDefaultByProp<TProp>(TProp value, string prop)
     {
-        var entity = GetOrDefault(e => EF.Property<string>(e, prop) == value);
+        var entity = GetOrDefault(e => EF.Property<TProp>(e, prop).Equals(value));
 
         return entity;
     }
@@ -375,22 +391,22 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
 
     #region GetById
 
-    public override async Task<TEntity> GetByIdAsync(string id)
+    public override async Task<TEntity> GetByIdAsync<TId>(TId id)
     {
         return await GetByPropAsync(id, "Id").ConfigureAwait(false);
     }
 
-    public override TEntity GetById(string id)
+    public override TEntity GetById<TId>(TId id)
     {
         return GetByProp(id, "Id");
     }
 
-    public override async Task<TEntity?> GetOrDefaultByIdAsync(string id)
+    public override async Task<TEntity?> GetOrDefaultByIdAsync<TId>(TId id)
     {
         return await GetOrDefaultByPropAsync(id, "Id").ConfigureAwait(false);
     }
 
-    public override TEntity? GetOrDefaultById(string id)
+    public override TEntity? GetOrDefaultById<TId>(TId id)
     {
         return GetOrDefaultByProp(id, "Id");
     }
@@ -399,22 +415,22 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
     #region Update
     public virtual async Task UpdateAndSaveAsync(TEntity updated)
     {
-        _entities.Update(updated);
+        Entities.Update(updated);
 
-        await baseContext
+        await BaseContext
             .SaveChangesAsync()
             .ConfigureAwait(false);
     }
 
     public virtual void UpdateAndSave(TEntity updated)
     {
-        _entities.Update(updated);
+        Entities.Update(updated);
 
-        baseContext.SaveChanges();
+        BaseContext.SaveChanges();
     }
 
-    public virtual async Task UpdateAndSaveByIdAsync(
-        string id,
+    public virtual async Task UpdateAndSaveByIdAsync<TId>(
+        TId id,
         object updates)
     {
         await UpdateAndSaveByPropAsync(
@@ -423,13 +439,13 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
             updates)
             .ConfigureAwait(false);
 
-        await baseContext
+        await BaseContext
             .SaveChangesAsync()
             .ConfigureAwait(false);
     }
 
-    public virtual void UpdateAndSaveById(
-        string id,
+    public virtual void UpdateAndSaveById<TId>(
+        TId id,
         object updates)
     {
         UpdateAndSaveByProp(
@@ -438,8 +454,8 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
             updates);
     }
 
-    public virtual async Task UpdateAndSaveByPropAsync(
-        string value,
+    public virtual async Task UpdateAndSaveByPropAsync<TProp>(
+        TProp value,
         string prop,
         object updates)
     {
@@ -448,22 +464,22 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
             prop,
             value);
 
-        var rawsAffected = 3;// await _efCoreConnection.Database.ExecuteSqlRawAsync(query).ConfigureAwait(false);
+        var rawsAffected = await BaseContext.Database.ExecuteSqlRawAsync(query).ConfigureAwait(false);
 
         if (rawsAffected != 0)
         {
-            var entity = _entities.Find(value)!;
-            await baseContext
+            var entity = Entities.Find(value)!;
+            await BaseContext
                 .Entry(entity)
                 .ReloadAsync()
                 .ConfigureAwait(false);
         }
     }
 
-    private string BuildUpdateQuery(
+    private string BuildUpdateQuery<TId>(
         object updates,
         string id,
-        string idValue)
+        TId idValue)
     {
         var typeofUpdates = updates.GetType();
         var propsOfUpdates = typeofUpdates.GetProperties();
@@ -480,23 +496,23 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
             return $"{p.Name}={value}";
         });
         var updatesSql = string.Join(",", namesOfProps);
-        var table = baseContext.GetTableName<TEntity>();
+        var table = BaseContext.GetTableName<TEntity>();
 
         var sql = string.Format("UPDATE {0} SET {1} WHERE {2} = '{3}'", table, updatesSql, id, idValue);
 
         return sql;
     }
 
-    public virtual void UpdateAndSaveByProp(string value, string prop, object updates)
+    public virtual void UpdateAndSaveByProp<TProp>(TProp value, string prop, object updates)
     {
-        var query = BuildUpdateQuery(updates, value, prop);
+        var query = BuildUpdateQuery(updates, prop, value);
 
         var rawsAffected = 3;//_efCoreConnection.Database.ExecuteSqlRaw(query);
 
         if (rawsAffected != 0)
         {
-            var entity = _entities.Find(value)!;
-            baseContext.Entry(entity).Reload();
+            var entity = Entities.Find(value)!;
+            BaseContext.Entry(entity).Reload();
         }
 
     }
@@ -505,20 +521,20 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
     #region Exist
     public virtual async Task<bool> ExistAsync(Expression<Func<TEntity, bool>> predicate)
     {
-        return await _entities
+        return await Entities
             .AnyAsync(predicate)
             .ConfigureAwait(false);
     }
 
     public bool Exist(Expression<Func<TEntity, bool>> predicate)
     {
-        return _entities.Any(predicate);
+        return Entities.Any(predicate);
     }
     #endregion
 
-    public static void AssertNullEntity(
+    public static void AssertNullEntity<TProp>(
        TEntity? entity,
-       string propertyValue,
+       TProp propertyValue,
        string propertyName)
     {
         if (Guard.IsNotNull(entity))
@@ -526,7 +542,7 @@ public class EfCoreRepository<TEntity>(EfCoreContext baseContext) :
             return;
         }
 
-        throw new SpecificResourceNotFoundException<TEntity>(propertyName, propertyValue);
+        throw new SpecificResourceNotFoundException<TEntity>(propertyName, propertyValue.ToString());
     }
 
     public static void AssertNullEntity(

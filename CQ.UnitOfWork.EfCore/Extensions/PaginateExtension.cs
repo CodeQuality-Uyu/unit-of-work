@@ -8,8 +8,8 @@ namespace CQ.UnitOfWork.EfCore.Extensions
     {
         public static IQueryable<T> Paginate<T>(
             this IQueryable<T> query,
-            int page = 1,
-            int pageSize = 10)
+            int page,
+            int pageSize)
         {
             if (page <= 0 || pageSize <= 0)
             {
@@ -23,11 +23,11 @@ namespace CQ.UnitOfWork.EfCore.Extensions
                 .Take(pageSize);
         }
 
-        public static Pagination<T> Paginate<T>(
+        public static Pagination<T> ToPaginate<T>(
             this IQueryable<T> query,
-            Expression<Func<T, bool>>? predicate = null,
-            int page = 1,
-            int pageSize = 10)
+            Expression<Func<T, bool>>? predicate,
+            int page,
+            int pageSize)
         {
             var itemsPaged = query
                 .NullableWhere(predicate)
@@ -46,14 +46,16 @@ namespace CQ.UnitOfWork.EfCore.Extensions
             return new Pagination<T>(
                 itemsPaged,
                 totalItems,
-                totalPages);
+                totalPages,
+                page,
+                pageSize);
         }
 
-        public static async Task<Pagination<T>> PaginateAsync<T>(
+        public static async Task<Pagination<T>> ToPaginateAsync<T>(
             this IQueryable<T> query,
-            Expression<Func<T, bool>>? predicate = null,
-            int page = 1,
-            int pageSize = 10)
+            Expression<Func<T, bool>>? predicate,
+            int page,
+            int pageSize)
         {
             var entities = await query
                 .NullableWhere(predicate)
@@ -69,12 +71,41 @@ namespace CQ.UnitOfWork.EfCore.Extensions
                 ? totalItems
                 : pageSize;
             
+            var totalPages = (long)Math.Ceiling(totalItems / itemsPerPage);
+
+            return new Pagination<T>(
+                entities,
+                totalItems,
+                totalPages,
+                page,
+                pageSize);
+        }
+
+        public static async Task<Pagination<T>> ToPaginateAsync<T>(
+            this IQueryable<T> query,
+            int page,
+            int pageSize)
+        {
+            var entities = await query
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            var totalItems = await query
+                .CountAsync()
+                .ConfigureAwait(false);
+
+            double itemsPerPage = pageSize <= 0
+                ? totalItems
+                : pageSize;
+
             var totalPages = Convert.ToInt64(Math.Ceiling(totalItems / itemsPerPage));
 
             return new Pagination<T>(
                 entities,
                 totalItems,
-                totalPages);
+                totalPages,
+                page,
+                pageSize);
         }
     }
 }

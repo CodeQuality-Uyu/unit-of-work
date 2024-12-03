@@ -1,6 +1,4 @@
-﻿using CQ.UnitOfWork;
-using CQ.UnitOfWork.Api.EFCore.DataAccess;
-using CQ.UnitOfWork.EfCore;
+﻿using CQ.UnitOfWork.Api.EFCore.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 

@@ -43,7 +43,13 @@ public abstract class EfCoreContext(DbContextOptions options) :
     }
 
     public virtual string GetTableName<TEntity>()
+        where TEntity : class
     {
         return typeof(TEntity).Name;
+    }
+
+    async Task IDatabaseContext.SaveChangesAsync()
+    {
+        await SaveChangesAsync().ConfigureAwait(false);
     }
 }

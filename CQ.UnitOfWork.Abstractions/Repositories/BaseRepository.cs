@@ -13,25 +13,25 @@ public abstract class BaseRepository<TEntity>
 
     public abstract Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate);
 
-    public abstract TEntity GetByProp(string value, string prop);
+    public abstract TEntity GetByProp<TProp>(TProp value, string prop);
 
-    public abstract Task<TEntity> GetByPropAsync(string value, string prop);
+    public abstract Task<TEntity> GetByPropAsync<TProp>(TProp value, string prop);
 
     public abstract TEntity? GetOrDefault(Expression<Func<TEntity, bool>> predicate);
 
     public abstract Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
 
-    public abstract TEntity? GetOrDefaultByProp(string value, string prop);
+    public abstract TEntity? GetOrDefaultByProp<TProp>(TProp value, string prop);
 
-    public abstract Task<TEntity?> GetOrDefaultByPropAsync(string value, string prop);
+    public abstract Task<TEntity?> GetOrDefaultByPropAsync<TProp>(TProp value, string prop);
 
-    public abstract Task<TEntity> GetByIdAsync(string id);
+    public abstract Task<TEntity> GetByIdAsync<TId>(TId id);
 
-    public abstract TEntity GetById(string id);
+    public abstract TEntity GetById<TId>(TId id);
 
-    public abstract Task<TEntity?> GetOrDefaultByIdAsync(string id);
+    public abstract Task<TEntity?> GetOrDefaultByIdAsync<TId>(TId id);
 
-    public abstract TEntity? GetOrDefaultById(string id);
+    public abstract TEntity? GetOrDefaultById<TId>(TId id);
 
     public abstract Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null);
 
@@ -59,9 +59,18 @@ public abstract class BaseRepository<TEntity>
         TException exception)
         where TException : Exception
     {
+        return await ExecuteAsync(() => GetAsync(predicate), exception).ConfigureAwait(false);
+    }
+
+    private static async Task<TResult> ExecuteAsync<TException, TResult>(
+        Func<Task<TResult>> actionAsync,
+        TException exception)
+        where TResult : class
+        where TException : Exception
+    {
         try
         {
-            return await GetAsync(predicate).ConfigureAwait(false);
+            return await actionAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -75,9 +84,18 @@ public abstract class BaseRepository<TEntity>
         TException exception)
         where TException : Exception
     {
+        return Execute(() => Get(predicate), exception);
+    }
+
+    private static TResult Execute<TException, TResult>(
+        Func<TResult> action,
+        TException exception)
+        where TResult : class
+        where TException : Exception
+    {
         try
         {
-            return Get(predicate);
+            return action();
         }
         catch (Exception ex)
         {
@@ -86,65 +104,33 @@ public abstract class BaseRepository<TEntity>
         }
     }
 
-    public virtual async Task<TEntity> GetByPropAsync<TException>(
-        string value,
+    public virtual async Task<TEntity> GetByPropAsync<TException, TProp>(
+        TProp value,
         string prop,
         TException exception) where TException : Exception
     {
-        try
-        {
-            return await GetByPropAsync(value, prop).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            exception.SetInnerException(ex);
-            throw exception;
-        }
+        return await ExecuteAsync(() => GetByPropAsync(value, prop), exception).ConfigureAwait(false);
     }
 
-    public virtual TEntity GetByProp<TException>(
-        string value,
+    public virtual TEntity GetByProp<TException, TProp>(
+        TProp value,
         string prop,
         TException exception) where TException : Exception
     {
-        try
-        {
-            return GetByProp(value, prop);
-        }
-        catch (Exception ex)
-        {
-            exception.SetInnerException(ex);
-            throw exception;
-        }
+        return Execute(() => GetByProp(value, prop), exception);
     }
 
-    public virtual async Task<TEntity> GetByIdAsync<TException>(
-        string id,
+    public virtual async Task<TEntity> GetByIdAsync<TException, TId>(
+        TId id,
         TException exception) where TException : Exception
     {
-        try
-        {
-            return await GetByIdAsync(id).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            exception.SetInnerException(ex);
-            throw exception;
-        }
+        return await ExecuteAsync(() => GetByIdAsync(id), exception).ConfigureAwait(false);
     }
 
-    public TEntity GetById<TException>(
-        string id,
+    public TEntity GetById<TException, TId>(
+        TId id,
         TException exception) where TException : Exception
     {
-        try
-        {
-            return GetById(id);
-        }
-        catch (Exception ex)
-        {
-            exception.SetInnerException(ex);
-            throw exception;
-        }
+        return Execute(() => GetById(id), exception);
     }
 }
