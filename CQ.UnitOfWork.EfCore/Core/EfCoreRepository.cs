@@ -340,22 +340,22 @@ public class EfCoreRepository<TEntity>(EfCoreContext _baseContext) :
     #endregion
 
     #region GetByProp
-    public override async Task<TEntity> GetByPropAsync(string value, string prop)
+    public override async Task<TEntity> GetByPropAsync<TProp>(TProp value, string prop)
     {
         var entity = await GetOrDefaultByPropAsync(value, prop).ConfigureAwait(false);
 
         if (Guard.IsNull(entity))
-            throw new SpecificResourceNotFoundException<TEntity>(prop, value);
+            throw new SpecificResourceNotFoundException<TEntity>(prop, value.ToString());
 
         return entity;
     }
 
-    public override TEntity GetByProp(string value, string prop)
+    public override TEntity GetByProp<TProp>(TProp value, string prop)
     {
         var entity = GetOrDefaultByProp(value, prop);
 
         if (Guard.IsNull(entity))
-            throw new SpecificResourceNotFoundException<TEntity>(prop, value);
+            throw new SpecificResourceNotFoundException<TEntity>(prop, value.ToString());
 
         return entity;
     }
@@ -374,16 +374,16 @@ public class EfCoreRepository<TEntity>(EfCoreContext _baseContext) :
     #endregion
 
     #region GetOrDefaultByProp
-    public override async Task<TEntity?> GetOrDefaultByPropAsync(string value, string prop)
+    public override async Task<TEntity?> GetOrDefaultByPropAsync<TProp>(TProp value, string prop)
     {
-        var entity = await GetOrDefaultAsync(e => EF.Property<string>(e, prop) == value).ConfigureAwait(false);
+        var entity = await GetOrDefaultAsync(e => EF.Property<TProp>(e, prop).Equals(value)).ConfigureAwait(false);
 
         return entity;
     }
 
-    public override TEntity? GetOrDefaultByProp(string value, string prop)
+    public override TEntity? GetOrDefaultByProp<TProp>(TProp value, string prop)
     {
-        var entity = GetOrDefault(e => EF.Property<string>(e, prop) == value);
+        var entity = GetOrDefault(e => EF.Property<TProp>(e, prop).Equals(value));
 
         return entity;
     }
@@ -391,22 +391,22 @@ public class EfCoreRepository<TEntity>(EfCoreContext _baseContext) :
 
     #region GetById
 
-    public override async Task<TEntity> GetByIdAsync(string id)
+    public override async Task<TEntity> GetByIdAsync<TId>(TId id)
     {
         return await GetByPropAsync(id, "Id").ConfigureAwait(false);
     }
 
-    public override TEntity GetById(string id)
+    public override TEntity GetById<TId>(TId id)
     {
         return GetByProp(id, "Id");
     }
 
-    public override async Task<TEntity?> GetOrDefaultByIdAsync(string id)
+    public override async Task<TEntity?> GetOrDefaultByIdAsync<TId>(TId id)
     {
         return await GetOrDefaultByPropAsync(id, "Id").ConfigureAwait(false);
     }
 
-    public override TEntity? GetOrDefaultById(string id)
+    public override TEntity? GetOrDefaultById<TId>(TId id)
     {
         return GetOrDefaultByProp(id, "Id");
     }
@@ -429,8 +429,8 @@ public class EfCoreRepository<TEntity>(EfCoreContext _baseContext) :
         BaseContext.SaveChanges();
     }
 
-    public virtual async Task UpdateAndSaveByIdAsync(
-        string id,
+    public virtual async Task UpdateAndSaveByIdAsync<TId>(
+        TId id,
         object updates)
     {
         await UpdateAndSaveByPropAsync(
@@ -444,8 +444,8 @@ public class EfCoreRepository<TEntity>(EfCoreContext _baseContext) :
             .ConfigureAwait(false);
     }
 
-    public virtual void UpdateAndSaveById(
-        string id,
+    public virtual void UpdateAndSaveById<TId>(
+        TId id,
         object updates)
     {
         UpdateAndSaveByProp(
@@ -454,8 +454,8 @@ public class EfCoreRepository<TEntity>(EfCoreContext _baseContext) :
             updates);
     }
 
-    public virtual async Task UpdateAndSaveByPropAsync(
-        string value,
+    public virtual async Task UpdateAndSaveByPropAsync<TProp>(
+        TProp value,
         string prop,
         object updates)
     {
@@ -476,10 +476,10 @@ public class EfCoreRepository<TEntity>(EfCoreContext _baseContext) :
         }
     }
 
-    private string BuildUpdateQuery(
+    private string BuildUpdateQuery<TId>(
         object updates,
         string id,
-        string idValue)
+        TId idValue)
     {
         var typeofUpdates = updates.GetType();
         var propsOfUpdates = typeofUpdates.GetProperties();
@@ -503,9 +503,9 @@ public class EfCoreRepository<TEntity>(EfCoreContext _baseContext) :
         return sql;
     }
 
-    public virtual void UpdateAndSaveByProp(string value, string prop, object updates)
+    public virtual void UpdateAndSaveByProp<TProp>(TProp value, string prop, object updates)
     {
-        var query = BuildUpdateQuery(updates, value, prop);
+        var query = BuildUpdateQuery(updates, prop, value);
 
         var rawsAffected = 3;//_efCoreConnection.Database.ExecuteSqlRaw(query);
 
@@ -532,9 +532,9 @@ public class EfCoreRepository<TEntity>(EfCoreContext _baseContext) :
     }
     #endregion
 
-    public static void AssertNullEntity(
+    public static void AssertNullEntity<TProp>(
        TEntity? entity,
-       string propertyValue,
+       TProp propertyValue,
        string propertyName)
     {
         if (Guard.IsNotNull(entity))
@@ -542,7 +542,7 @@ public class EfCoreRepository<TEntity>(EfCoreContext _baseContext) :
             return;
         }
 
-        throw new SpecificResourceNotFoundException<TEntity>(propertyName, propertyValue);
+        throw new SpecificResourceNotFoundException<TEntity>(propertyName, propertyValue.ToString());
     }
 
     public static void AssertNullEntity(
