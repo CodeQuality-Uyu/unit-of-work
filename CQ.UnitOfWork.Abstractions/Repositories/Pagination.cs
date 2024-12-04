@@ -9,7 +9,7 @@ public record Pagination<TItem>(
 {
     public long TotalItems { get; init; } = Items.Count;
 
-    public bool HasNext { get; init; } = Page != TotalPages;
+    public bool HasNext { get; init; } = Page >= 1 && Page < TotalPages;
 
-    public bool HasPrevious { get; init; } = Page != 1;
+    public bool HasPrevious { get; init; } = Page > 1 && Page <= TotalPages;
 }
