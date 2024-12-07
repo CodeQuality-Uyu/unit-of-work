@@ -223,7 +223,7 @@ public class EfCoreRepository<TEntity>(EfCoreContext _baseContext) :
         int pageSize = 10)
     {
         return await Entities
-            .ToPaginateAsync(
+            .ToNullablePaginateAsync(
             predicate,
             page,
             pageSize)
@@ -235,10 +235,11 @@ public class EfCoreRepository<TEntity>(EfCoreContext _baseContext) :
         int page = 1,
         int pageSize = 10)
     {
-        return Entities.ToPaginate(
-            predicate,
-            page,
-            pageSize);
+        var task = GetPagedAsync(predicate, page, pageSize);
+
+        var elements = task.Result;
+
+        return elements;
     }
 
     public async Task<Pagination<TResult>> GetPagedAsync<TResult>(
@@ -251,7 +252,6 @@ public class EfCoreRepository<TEntity>(EfCoreContext _baseContext) :
             .NullableWhere(predicate)
             .Select(selector)
             .ToPaginateAsync(
-            null,
             page,
             pageSize)
             .ConfigureAwait(false);
@@ -291,7 +291,6 @@ public class EfCoreRepository<TEntity>(EfCoreContext _baseContext) :
 
         var elements = await query
             .ToPaginateAsync(
-            null,
             page,
             pageSize)
             .ConfigureAwait(false);
