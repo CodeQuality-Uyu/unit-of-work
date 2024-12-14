@@ -45,7 +45,13 @@ public abstract class EfCoreContext(DbContextOptions options) :
     public virtual string GetTableName<TEntity>()
         where TEntity : class
     {
-        return typeof(TEntity).Name;
+        var tableName = GetType()
+            .GetProperties()
+            .Where(p => p.PropertyType == typeof(DbSet<TEntity>))
+            .First()
+            .Name;
+
+        return tableName;
     }
 
     async Task IDatabaseContext.SaveChangesAsync()
