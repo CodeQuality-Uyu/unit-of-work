@@ -506,14 +506,13 @@ public class EfCoreRepository<TEntity>(EfCoreContext _baseContext) :
     {
         var query = BuildUpdateQuery(updates, prop, value);
 
-        var rawsAffected = 3;//_efCoreConnection.Database.ExecuteSqlRaw(query);
+        var rawsAffected = BaseContext.Database.ExecuteSqlRaw(query);
 
         if (rawsAffected != 0)
         {
             var entity = Entities.Find(value)!;
             BaseContext.Entry(entity).Reload();
         }
-
     }
     #endregion
 
